@@ -4,7 +4,7 @@
  */
 
 var express = require('express')
-    routes  = require(__dirname + '/routes')
+  , routes  = require(__dirname + '/routes')
   , Sequelize = require('sequelize')
 
 
@@ -54,7 +54,10 @@ db.sync({force: false}).on('success', function() {
 
 // Routes
 
-app.get('/', routes.index);
+app.get('/',                  routes.index);
+app.get('/image/:id',         routes.image); // Provides raw images
+app.get('/image/:id/gettile', routes.tile);  // Provides tiles
+app.get('/image/:id/getrois', routes.rois);  // Provides ROIs 
 
 
 app.listen(8080);
