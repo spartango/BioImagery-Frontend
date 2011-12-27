@@ -7,7 +7,7 @@ exports.image = function(req, res){
     var imageId = req.params.id;
     
     if(imageId != null) {
-        Image.get(image).on('success', function(image) {
+        Image.get(imageId).on('success', function(image) {
             if(image != null) {
                 var filename = image.filename;
                 // Get the raw file from the disk
@@ -34,7 +34,7 @@ exports.tile = function(req, res){
     // Floor the image offsets to the nearest bin 
 
     if(imageId != null && xOffset != null && yOffset != null) {
-        Image.get(image).on('success', function(image) {
+        Image.get(imageId).on('success', function(image) {
             if(image != null) {
                 var filename = image.filename;
 
@@ -64,7 +64,7 @@ exports.rois = function(req, res){
     var length  = req.params.length;
 
     if(imageId != null) {
-        Image.get(image).on('success', function(image) {
+        Image.get(imageId).on('success', function(image) {
             if(image != null) {
                 var filename = image.filename;
                     // Ask the db for all ROIs on a given image
@@ -99,12 +99,22 @@ exports.createroi = function(req, res){
         && yOffset != null 
         && rWidth  != null 
         && rLength != null) {
+
+
             var newRoi = Roi.build({
-                x: xOffset,
-                y: yOffset,
+                x:      xOffset,
+                y:      yOffset,
                 length: rLength,
-                width: rWidth
+                width:  rWidth
             });
+            
+            // Set the image (it better exist)
+            Image.find(imageId).on('success', function(image) {
+                // This will save the ROI automagically
+                if(image != null)
+                    newRoi.setImage(image);
+            });
+            
 
     }
 
