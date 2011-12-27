@@ -124,6 +124,8 @@ exports.rois = function(req, res){
                     // TODO send it along
                 });
                     
+            } else {
+                res.send('', 404);
             }
 
         });  
