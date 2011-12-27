@@ -13,26 +13,26 @@ exports.image = function(req, res){
  * GET a tile
  */
 
-exports.gettile = function(req, res){
-  // We need the image ID
-  // Need the image offsets
-  // Assert that the image offsets are safe
-  // Floor the image offsets to the nearest bin
-  // Generate the tilename
-  // Get the tile from disk 
-  // Send the tile along
+exports.tile = function(req, res){
+    // We need the image ID
+    // Need the image offsets
+    // Assert that the image offsets are safe
+    // Floor the image offsets to the nearest bin
+    // Generate the tilename
+    // Get the tile from disk 
+    // Send the tile along
 };
 
 /*
  * GET rois 
  */
 
-exports.getrois = function(req, res){
-  // We need the image ID
-  // Ask the db for all ROIs on a given image
-  // If no bounds are requested, then send ALL ROIs
-  // Else, Get the bounding params
-  // Filter the ROI-set for the bounds
+exports.rois = function(req, res){
+    // We need the image ID
+    // Ask the db for all ROIs on a given image
+    // If no bounds are requested, then send ALL ROIs
+    // Else, Get the bounding params
+    // Filter the ROI-set for the bounds
 };
 
 /*
@@ -40,9 +40,9 @@ exports.getrois = function(req, res){
  */
 
 exports.createroi = function(req, res){
-  // We need the image ID
-  // Ensure that all the right params are passed
-  // Create an ROI instance
-  // commit it to the db
-  // Send a 200OK
+    // We need the image ID
+    // Ensure that all the right params are passed
+    // Create an ROI instance
+    // commit it to the db
+    // Send a 200OK
 };
