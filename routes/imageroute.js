@@ -104,12 +104,24 @@ exports.rois = function(req, res){
     if(imageId) {
         Image.get(imageId).on('success', function(image) {
             if(image) {
-                var filename = image.filename;
+                // Ask the db for all ROIs on a given image
                 image.getRois().on('success', function(rois){
-                    // Ask the db for all ROIs on a given image
-                    // If no bounds are requested, then send ALL ROIs
-                    // Else, Get the bounding params
-                    // Filter the ROI-set for the bounds
+                    var targets; 
+                    // If  bounds are requested, filter by the bounding params
+                    if(xOffset && yOffset && width && length) {
+                        targets = rois.filter(function(roi) {
+                            return roi.x >= xOffset
+                                   && roi.y >= yOffset
+                                   && roi.width < (xOffset + width)
+                                   && roi.length < (yOffset + length);
+                        })
+                    } else {
+                        // Send everything
+                        targets = rois;
+                    }
+
+                    // JSONify targets
+                    // TODO send it along
                 });
                     
             }
@@ -124,58 +136,6 @@ exports.rois = function(req, res){
 
 };
 
-/*
- * POST create a new roi 
- */
-
-exports.createroi = function(req, res){
-    // Get the image ID
-    var imageId = req.params.id;
-    var xOffset = req.params.x;
-    var yOffset = req.params.y;
-    var rWidth  = req.params.width;
-    var rLength = req.params.length;
-     
-    // Ensure that all the right params are passed
-    if(    imageId  
-        && xOffset  
-        && yOffset  
-        && rWidth   
-        && rLength ) {
-
-
-            var newRoi = Roi.build({
-                x:      xOffset,
-                y:      yOffset,
-                length: rLength,
-                width:  rWidth
-            });
-            
-            // Set the image (it better exist)
-            Image.find(imageId).on('success', function(image) {
-                // This will save the ROI automagically
-                if(image) {
-                    newRoi.setImage(image);
-                } 
-            });
-            
-            // Create an ROI instance
-            // commit it to the db
-            // Send a 200OK and the new ID
-            res.send(newRoi.id, 200);
-
-    } else {
-        // param Error Condition 
-        // Send a 400 back
-        res.send('', 400);
-    }
-
-};
-
-exports.createtag = function(req, res) {
-    
-};
-
-exports.tagroi = function(req, res) {
+exports.createimage = function(req, res) {
     
 };
