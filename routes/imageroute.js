@@ -27,7 +27,7 @@ exports.gettile = function(req, res){
  * GET rois 
  */
 
-exports.gettile = function(req, res){
+exports.getrois = function(req, res){
   // We need the image ID
   // Ask the db for all ROIs on a given image
   // If no bounds are requested, then send ALL ROIs
@@ -35,3 +35,14 @@ exports.gettile = function(req, res){
   // Filter the ROI-set for the bounds
 };
 
+/*
+ * POST create a new roi 
+ */
+
+exports.createroi = function(req, res){
+  // We need the image ID
+  // Ensure that all the right params are passed
+  // Create an ROI instance
+  // commit it to the db
+  // Send a 200OK
+};
