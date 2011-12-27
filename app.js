@@ -4,8 +4,8 @@
  */
 
 var express = require('express')
-  , routes  = require(__dirname + '/routes')
   , Sequelize = require('sequelize')
+  , routes  = require(__dirname + '/routes')
 
 
 // Application Config
@@ -55,11 +55,12 @@ db.sync({force: false}).on('success', function() {
 // Routes
 
 app.get('/',                     routes.index);
-app.get('/image/:id',            routes.image); // Provides raw images
-app.get('/image/:id/gettile',    routes.tile);  // Provides tiles
-app.get('/image/:id/getrois',    routes.rois);  // Provides ROIs 
-app.post('/image/:id/createroi', routes.createroi);  // Creates a ROI
-
+app.get('/image/:id',            routes.image;      // Provides raw images
+app.get('/image/:id/gettile',    routes.tile);      // Provides tiles
+app.get('/image/:id/getrois',    routes.rois);      // Provides ROIs 
+app.post('/tag/create',          routes.createtag); // Creates a Tag
+app.post('/roi/create',          routes.createroi); // Creates a ROI
+app.post('/roi/:id/tagroi',      routes.tagroi);    // Tags an ROI
 
 app.listen(8080);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
