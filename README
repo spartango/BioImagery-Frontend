@@ -1,0 +1,19 @@
+
+--- Setup ---
+
+Install node
+https://github.com/joyent/node/wiki/Installation
+    -> We're using 0.6.6
+
+Install NPM
+curl http://npmjs.org/install.sh | sh
+
+Install the dependencies for this project
+npm install -d
+
+--- Running ---
+
+Start the server with
+node app.js
+
+The server will come up on port 8080

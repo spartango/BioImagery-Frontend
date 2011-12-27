@@ -54,10 +54,11 @@ db.sync({force: false}).on('success', function() {
 
 // Routes
 
-app.get('/',                  routes.index);
-app.get('/image/:id',         routes.image); // Provides raw images
-app.get('/image/:id/gettile', routes.tile);  // Provides tiles
-app.get('/image/:id/getrois', routes.rois);  // Provides ROIs 
+app.get('/',                     routes.index);
+app.get('/image/:id',            routes.image); // Provides raw images
+app.get('/image/:id/gettile',    routes.tile);  // Provides tiles
+app.get('/image/:id/getrois',    routes.rois);  // Provides ROIs 
+app.post('/image/:id/createroi', routes.createroi);  // Creates a ROI
 
 
 app.listen(8080);
