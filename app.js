@@ -4,7 +4,8 @@
  */
 
 var express = require('express')
-  , Sequelize = require("sequelize")
+    routes  = require(__dirname + '/routes')
+  , Sequelize = require('sequelize')
 
 
 // Application Config
@@ -13,7 +14,7 @@ var app = module.exports = express.createServer();
 
 // Db Config
 
-var db = new Sequelize('bioimagery', 'imagingfrontend'[, '4ront3nd'])
+var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 
 // Configuration
 
