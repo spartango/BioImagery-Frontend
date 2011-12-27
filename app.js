@@ -4,9 +4,16 @@
  */
 
 var express = require('express')
-  , routes = require('./routes')
+  , Sequelize = require("sequelize")
+
+
+// Application Config
 
 var app = module.exports = express.createServer();
+
+// Db Config
+
+var db = new Sequelize('bioimagery', 'imagingfrontend'[, '4ront3nd'])
 
 // Configuration
 
@@ -27,9 +34,28 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
+// Models
+var Image = db.import(__dirname + "/models/image");
+var Roi   = db.import(__dirname + "/models/roi");
+var Tag   = db.import(__dirname + "/models/tag");
+
+// Relationships
+Image.hasMany(Roi);
+Roi.belongsTo(Image); 
+Roi.hasMany(Tag);
+
+// Db Setup 
+db.sync({force: false}).on('success', function() {
+    console.log('MySQL schema created');
+}).on('failure', function() {
+    console.log('MySQL schema cannot be created');
+});
+
 // Routes
 
 app.get('/', routes.index);
+
+
 
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
