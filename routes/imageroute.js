@@ -140,6 +140,7 @@ exports.rois = function(req, res){
 };
 
 exports.createimage = function(req, res) {
+    // TODO work in progress for uploads
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files) {
       res.writeHead(200, {'content-type': 'text/plain'});

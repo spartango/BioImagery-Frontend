@@ -62,6 +62,8 @@ app.get('/image/:id/gettile',    routes.tile);        // Provides tiles
 app.get('/image/:id/getrois',    routes.rois);        // Provides ROIs
 app.post('/image/createimage',   routes.createimage); // Creates an Image
 app.post('/tag/create',          routes.createtag);   // Creates a Tag
+app.post('/tag',                 routes.tags);
+app.post('/tag/:id',             routes.gettag);
 app.post('/roi/create',          routes.createroi);   // Creates a ROI
 app.post('/roi/:id/tagroi',      routes.tagroi);      // Tags an ROI
 
