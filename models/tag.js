@@ -9,7 +9,8 @@ module.exports = function(sequelize, DataTypes) {
                         name: tag.name,
                     }); 
                 }
-            }
+            },
+            instanceMethods: {}
         }
     );
     return Tag; 

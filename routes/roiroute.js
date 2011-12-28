@@ -1,3 +1,17 @@
+var Sequelize = require('sequelize')
+
+var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
+
+// Models
+var Image = db.import(__dirname +'/../models/image');
+var Roi   = db.import(__dirname +'/../models/roi');
+var Tag   = db.import(__dirname +'/../models/tag');
+
+// Relationships
+Image.hasMany(Roi);
+Roi.belongsTo(Image); 
+Roi.hasMany(Tag);
+
 /*
  * POST create a new roi 
  */
@@ -26,7 +40,7 @@ exports.createroi = function(req, res){
             });
             
             // Set the image (it better exist)
-            Image.find(imageId).on('success', function(image) {
+            Image.find(Number(imageId)).on('success', function(image) {
                 // This will save the ROI automagically
                 if(image) {
                     newRoi.setImage(image);

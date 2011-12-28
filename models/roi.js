@@ -17,7 +17,8 @@ module.exports = function(sequelize, DataTypes) {
                         confidence: roi.confidence
                     }); 
                 }
-            }
+            },
+            instanceMethods: {}
         }
     );
     return Roi; 

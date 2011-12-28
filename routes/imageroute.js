@@ -1,4 +1,19 @@
-// TODO fix imports...we need fs and Image, Roi and Tag
+var tiling = require('../tools/tiling'),
+        fs = require('fs')
+
+var Sequelize = require('sequelize')
+
+var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
+
+// Models
+var Image = db.import(__dirname +'/../models/image');
+var Roi   = db.import(__dirname +'/../models/roi');
+var Tag   = db.import(__dirname +'/../models/tag');
+
+// Relationships
+//Image.hasMany(Roi);
+//Roi.belongsTo(Image); 
+//Roi.hasMany(Tag);
 
 var TILE_WIDTH  = 256;
 var TILE_LENGTH = 256;
@@ -12,7 +27,7 @@ exports.image = function(req, res){
     var imageId = req.params.id;
     
     if(imageId) {
-        Image.get(imageId).on('success', function(image) {
+        Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Get the raw file from the disk
                 fs.readFile(image.filename, 
@@ -39,8 +54,6 @@ exports.image = function(req, res){
         // Send a 400 back
         res.send('', 400);
     }
-
-
 };
 
 /*
@@ -56,7 +69,7 @@ exports.tile = function(req, res){
     // Floor the image offsets to the nearest bin 
 
     if(imageId && xOffset && yOffset) {
-        Image.get(imageId).on('success', function(image) {
+        Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var tilename = tiling.generateTileName(xOffset, yOffset, image.filename);
 
@@ -84,9 +97,7 @@ exports.tile = function(req, res){
         // Send a 400 back
         res.send('', 400);
     }
-
-
-
+    
 };
 
 /*
@@ -102,7 +113,7 @@ exports.rois = function(req, res){
     var length  = req.params.length;
 
     if(imageId) {
-        Image.get(imageId).on('success', function(image) {
+        Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Ask the db for all ROIs on a given image
                 image.getRois().on('success', function(rois){
@@ -121,7 +132,7 @@ exports.rois = function(req, res){
                     }
 
                     // JSONify targets
-                    var json = JSON.stringify(targets.map(Image.stringify));
+                    var json = JSON.stringify(targets.map(Roi.stringify));
                     res.send(json, 200);
                 });
                     
@@ -136,15 +147,14 @@ exports.rois = function(req, res){
         res.send('', 400);
     }
 
-
 };
 
-exports.createimage = function(req, res) {
+exports.createimage =  function(req, res) {
     // TODO work in progress for uploads
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files) {
       res.writeHead(200, {'content-type': 'text/plain'});
       res.write('received upload:\n\n');
       res.end(sys.inspect({fields: fields, files: files}));
-    });
+    }); 
 };

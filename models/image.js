@@ -1,4 +1,3 @@
-
 module.exports = function(sequelize, DataTypes) {
     var Image = sequelize.define('Image', {
             filename:    DataTypes.STRING, 
@@ -16,7 +15,8 @@ module.exports = function(sequelize, DataTypes) {
                         description: image.description
                     }); 
                 }
-            }
+            },
+            instanceMethods: {}
         }
     );
     return Image; 
