@@ -67,7 +67,7 @@ app.post('/image/create',        imageroutes.createimage); // Creates an Image
 app.get('/image/:id',            imageroutes.image);       // Provides raw images
 app.get('/image/:id/gettile',    imageroutes.tile);        // Provides tiles
 app.get('/image/:id/getrois',    imageroutes.rois);        // Provides ROIs
-app.post('/tag/create/:name',    tagroutes.createtag);     // Creates a Tag
+app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
 app.get('/tag',                  tagroutes.tags);          // Lists all Tags
 app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag
 app.post('/roi/create',          roiroutes.createroi);     // Creates a ROI

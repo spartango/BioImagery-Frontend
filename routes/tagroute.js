@@ -14,7 +14,7 @@ Roi.hasMany(Tag);
 
 exports.tags = function(req, res) {
     // Get all the tags from the database
-    Tags.findAll().on('success', function(tags){
+    Tag.findAll().on('success', function(tags){
         var json = JSON.stringify(tags.map(Tag.stringify));
         // Generate a listing of them
         // Send it along
@@ -27,7 +27,7 @@ exports.gettag = function(req, res) {
     var tagId = req.params.id;
     if(tagId) {
         // Look up a tag
-        Tags.find(Number(tagId)).on('success', function(tag) {
+        Tag.find(Number(tagId)).on('success', function(tag) {
             if(tag) {
                 // Get its name
                 // Send that back   
@@ -44,7 +44,7 @@ exports.gettag = function(req, res) {
 
 exports.createtag = function(req, res) {
     // Check for appropriate name param
-    var tname = req.params.name;
+    var tname = req.param('name');
     if(tname) {
         // Create the tag
         var newTag = Tag.build({
