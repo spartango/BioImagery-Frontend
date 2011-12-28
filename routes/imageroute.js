@@ -121,7 +121,7 @@ exports.rois = function(req, res){
                     }
 
                     // JSONify targets
-                    var json = JSON.stringify(rois.map(Image.stringify));
+                    var json = JSON.stringify(targets.map(Image.stringify));
                     res.send(json, 200);
                 });
                     
