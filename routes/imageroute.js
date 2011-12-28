@@ -114,7 +114,7 @@ exports.rois = function(req, res){
                                    && roi.y >= yOffset
                                    && roi.width < (xOffset + width)
                                    && roi.length < (yOffset + length);
-                        })
+                        });
                     } else {
                         // Send everything
                         targets = rois;
@@ -139,5 +139,10 @@ exports.rois = function(req, res){
 };
 
 exports.createimage = function(req, res) {
-    
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+      res.writeHead(200, {'content-type': 'text/plain'});
+      res.write('received upload:\n\n');
+      res.end(sys.inspect({fields: fields, files: files}));
+    });
 };
