@@ -121,7 +121,8 @@ exports.rois = function(req, res){
                     }
 
                     // JSONify targets
-                    // TODO send it along
+                    var json = JSON.stringify(rois.map(Image.stringify));
+                    res.send(json)
                 });
                     
             } else {
