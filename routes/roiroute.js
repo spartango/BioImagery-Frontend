@@ -7,6 +7,11 @@ var Image = db.import(__dirname +'/../models/image');
 var Roi   = db.import(__dirname +'/../models/roi');
 var Tag   = db.import(__dirname +'/../models/tag');
 
+// Relationships
+Image.hasMany(Roi);
+Roi.belongsTo(Image); 
+Roi.hasMany(Tag);
+
 /*
  * POST create a new roi 
  */
@@ -56,6 +61,10 @@ exports.createroi = function(req, res){
 };
 
 exports.tagroi = function(req, res) {
-    
+    // Get the ROI param id
+    // Get the tag param id
+    // Look up the ROI
+    // Look up the tag
+    // Create association between ROI and tag
 };
 

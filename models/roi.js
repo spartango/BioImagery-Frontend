@@ -14,7 +14,8 @@ module.exports = function(sequelize, DataTypes) {
                         y:          roi.y,
                         length:     roi.length, 
                         width:      roi.width, 
-                        confidence: roi.confidence
+                        confidence: roi.confidence,
+                        id: roi.id
                     }); 
                 }
             },

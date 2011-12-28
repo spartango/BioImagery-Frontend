@@ -7,6 +7,7 @@ module.exports = function(sequelize, DataTypes) {
                 stringify: function(tag) { 
                     return JSON.stringify({
                         name: tag.name,
+                        id: tag.id
                     }); 
                 }
             },

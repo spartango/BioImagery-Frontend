@@ -12,7 +12,8 @@ module.exports = function(sequelize, DataTypes) {
                         filename:    image.filename,
                         length:      image.length, 
                         width:       image.width, 
-                        description: image.description
+                        description: image.description,
+                        id:          image.id
                     }); 
                 }
             },

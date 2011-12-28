@@ -3,8 +3,8 @@
 # Generates 256x256 tiles from images
 # Depends on imagemagick
 
-TILE_WIDTH=1024
-TILE_LENGTH=1024
+TILE_WIDTH=400
+TILE_LENGTH=400
 
 
 for image in `ls ../images`; do

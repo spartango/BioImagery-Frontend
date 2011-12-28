@@ -14,9 +14,9 @@ var Roi   = db.import(__dirname +'/../models/roi');
 var Tag   = db.import(__dirname +'/../models/tag');
 
 // Relationships
-//Image.hasMany(Roi);
-//Roi.belongsTo(Image); 
-//Roi.hasMany(Tag);
+Image.hasMany(Roi);
+Roi.belongsTo(Image); 
+Roi.hasMany(Tag);
 
 /*
  * GET a raw image
@@ -152,17 +152,20 @@ exports.rois = function(req, res){
 };
 
 exports.createimage =  function(req, res) {
-        //Test: Make some initial images
+    //Test: Make some initial images
     var newImage = Image.build({
-        filename: 'AlignedHiResStack_2_6_2011_00.tif'
+        filename: 'AlignedHiResStack_2_6_2011_00.tif',
+        description: ''
     })
     newImage.save().on('success', function() {
         res.send("Test Saved OK", 200);
     }).on('failure', function(error){
         res.send("Failed to Save", 500);
     });
+
+    // TODO setup the form
 };
 
 exports.showimages =  function(req, res) {
-    // TODO work in progress for displaying images
+    // Render the images page
 };
