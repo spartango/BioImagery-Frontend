@@ -51,6 +51,7 @@ db.sync({force: false}).on('success', function() {
     console.log('MySQL schema cannot be created');
 });
 
+
 // Routes
 
 var imageroutes = require(__dirname + '/routes/imageroute');
@@ -61,10 +62,11 @@ var routes      = require(__dirname + '/routes/index');
 console.log("Loaded Routes");
 
 app.get('/',                     routes.index);
+app.get('/image',                imageroutes.showimages);  // Give a listing of images
+app.get('/image/create',        imageroutes.createimage); // Creates an Image
 app.get('/image/:id',            imageroutes.image);       // Provides raw images
 app.get('/image/:id/gettile',    imageroutes.tile);        // Provides tiles
 app.get('/image/:id/getrois',    imageroutes.rois);        // Provides ROIs
-app.post('/image/createimage',   imageroutes.createimage); // Creates an Image
 app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
 app.get('/tag',                  tagroutes.tags);          // Lists all Tags
 app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag

@@ -7,11 +7,6 @@ var Image = db.import(__dirname +'/../models/image');
 var Roi   = db.import(__dirname +'/../models/roi');
 var Tag   = db.import(__dirname +'/../models/tag');
 
-// Relationships
-Image.hasMany(Roi);
-Roi.belongsTo(Image); 
-Roi.hasMany(Tag);
-
 exports.tags = function(req, res) {
     
 };

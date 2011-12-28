@@ -7,11 +7,6 @@ var Image = db.import(__dirname +'/../models/image');
 var Roi   = db.import(__dirname +'/../models/roi');
 var Tag   = db.import(__dirname +'/../models/tag');
 
-// Relationships
-Image.hasMany(Roi);
-Roi.belongsTo(Image); 
-Roi.hasMany(Tag);
-
 /*
  * POST create a new roi 
  */
@@ -19,17 +14,17 @@ Roi.hasMany(Tag);
 exports.createroi = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    var xOffset = req.params.x;
-    var yOffset = req.params.y;
-    var rWidth  = req.params.width;
-    var rLength = req.params.length;
+    var xOffset = req.params('x');
+    var yOffset = req.params('y');
+    var rWidth  = req.params('width');
+    var rLength = req.params('length');
      
     // Ensure that all the right params are passed
     if(    imageId  
-        && xOffset  
-        && yOffset  
-        && rWidth   
-        && rLength ) {
+        && xOffset != null 
+        && yOffset != null
+        && rWidth  != null
+        && rLength != null) {
 
 
             var newRoi = Roi.build({

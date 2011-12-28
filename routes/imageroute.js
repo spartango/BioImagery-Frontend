@@ -1,6 +1,9 @@
 var tiling = require('../tools/tiling'),
         fs = require('fs')
 
+var imageDir = '../images/'
+var tileDir  = '../tiles/'
+
 var Sequelize = require('sequelize')
 
 var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
@@ -15,9 +18,6 @@ var Tag   = db.import(__dirname +'/../models/tag');
 //Roi.belongsTo(Image); 
 //Roi.hasMany(Tag);
 
-var TILE_WIDTH  = 256;
-var TILE_LENGTH = 256;
-
 /*
  * GET a raw image
  */
@@ -30,11 +30,11 @@ exports.image = function(req, res){
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Get the raw file from the disk
-                fs.readFile(image.filename, 
+                fs.readFile(imageDir + image.filename, 
                     function(err, data) {
                         if(err) {
                             // Error Condition
-                            res.send('', 404);
+                            res.render('404', {title: '404'});
                         } else {
                             res.writeHead(200, {'Content-Type': 'image/tiff' });
                             res.end(img, 'binary');
@@ -45,14 +45,14 @@ exports.image = function(req, res){
             } else {
                 // Error condition
                 // Send a 404 back
-                res.send('', 404);
+                res.render('404', {title: '404'});
             }
 
         });  
     } else {
         // param Error condition
         // Send a 400 back
-        res.send('', 400);
+        res.send('Bad Params', 400);
     }
 };
 
@@ -63,18 +63,17 @@ exports.image = function(req, res){
 exports.tile = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    var xOffset = TILE_WIDTH * Math.floor(req.params.x / TILE_WIDTH);
-    var yOffset = TILE_LENGTH * Math.floor(req.params.y / TILE_LENGTH);
+    var xOffset = tiling.TILE_WIDTH * Math.floor(req.param('x') / tiling.TILE_WIDTH);
+    var yOffset = tiling.TILE_LENGTH * Math.floor(req.param('y') / tiling.TILE_LENGTH);
     // Assert that the image offsets are safe
     // Floor the image offsets to the nearest bin 
-
-    if(imageId && xOffset && yOffset) {
+    if(imageId && xOffset != null && yOffset != null) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var tilename = tiling.generateTileName(xOffset, yOffset, image.filename);
 
                 // Get the tile from disk 
-                fs.readFile(tilename, 
+                fs.readFile(tileDir + tilename, 
                     function(err, data) {
                         if(err) {
                             // Error Condition
@@ -95,7 +94,7 @@ exports.tile = function(req, res){
     } else {
         // param Error Condition 
         // Send a 400 back
-        res.send('', 400);
+        res.send('Bad Params', 400);
     }
     
 };
@@ -107,10 +106,10 @@ exports.tile = function(req, res){
 exports.rois = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    var xOffset = req.params.x;
-    var yOffset = req.params.y;
-    var width   = req.params.width;
-    var length  = req.params.length;
+    var xOffset = req.param('x');
+    var yOffset = req.param('y');
+    var width   = req.param('width');
+    var length  = req.param('length');
 
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
@@ -119,7 +118,10 @@ exports.rois = function(req, res){
                 image.getRois().on('success', function(rois){
                     var targets; 
                     // If  bounds are requested, filter by the bounding params
-                    if(xOffset && yOffset && width && length) {
+                    if(xOffset      != null 
+                        && yOffset  != null 
+                        && width    != null 
+                        && length   != null) {
                         targets = rois.filter(function(roi) {
                             return roi.x >= xOffset
                                    && roi.y >= yOffset
@@ -137,24 +139,33 @@ exports.rois = function(req, res){
                 });
                     
             } else {
-                res.send('', 404);
+                res.render('404', {title: '404'});
             }
 
         });  
     } else {
         // param Error Condition 
         // Send a 400 back
-        res.send('', 400);
+        res.send('Bad Params', 400);
     }
 
 };
 
 exports.createimage =  function(req, res) {
-    // TODO work in progress for uploads
-    var form = new formidable.IncomingForm();
-    form.parse(req, function(err, fields, files) {
-      res.writeHead(200, {'content-type': 'text/plain'});
-      res.write('received upload:\n\n');
-      res.end(sys.inspect({fields: fields, files: files}));
-    }); 
+        //Test: Make some initial images
+    var newImage = Image.build({
+        filename: 'AlignedHiResStack_2_6_2011_00.tif',
+        length: 7200,
+        width: 7296,
+        description: ''
+    })
+    newImage.save().on('success', function() {
+        res.send("Test Saved OK", 200);
+    }).on('failure', function(error){
+        res.send("Failed to Save", 500);
+    });
+};
+
+exports.showimages =  function(req, res) {
+    // TODO work in progress for displaying images
 };
