@@ -1,8 +1,8 @@
 var tiling = require('../tools/tiling'),
         fs = require('fs')
 
-var imageDir = '../images/'
-var tileDir  = '../tiles/'
+var imageDir = __dirname+'/../images/'
+var tileDir  = __dirname+'/../tiles/'
 
 var Sequelize = require('sequelize')
 
@@ -34,10 +34,10 @@ exports.image = function(req, res){
                     function(err, data) {
                         if(err) {
                             // Error Condition
-                            res.render('404', {title: '404'});
+                            res.render('404', {title: '404 Bad File'});
                         } else {
                             res.writeHead(200, {'Content-Type': 'image/tiff' });
-                            res.end(img, 'binary');
+                            res.end(data, 'binary');
                         }
                     }
                 );
@@ -45,7 +45,7 @@ exports.image = function(req, res){
             } else {
                 // Error condition
                 // Send a 404 back
-                res.render('404', {title: '404'});
+                res.render('404', {title: '404 Bad DB'});
             }
 
         });  
@@ -154,10 +154,7 @@ exports.rois = function(req, res){
 exports.createimage =  function(req, res) {
         //Test: Make some initial images
     var newImage = Image.build({
-        filename: 'AlignedHiResStack_2_6_2011_00.tif',
-        length: 7200,
-        width: 7296,
-        description: ''
+        filename: 'AlignedHiResStack_2_6_2011_00.tif'
     })
     newImage.save().on('success', function() {
         res.send("Test Saved OK", 200);
