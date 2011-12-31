@@ -62,9 +62,21 @@ exports.createroi = function(req, res){
 
 exports.tagroi = function(req, res) {
     // Get the ROI param id
+    var roiId = req.params.id;
     // Get the tag param id
-    // Look up the ROI
-    // Look up the tag
+    var tagId = req.param('tag');
+    if(roiId && tagId) {
+            // Look up the ROI
+            Roi.find(roiId).on('success', function(roi) {
+               if(roi) {
+                    // Look up the tag
+                    Tag.find(tagId).on('success', function(tag) {
+                        
+                    });
+               }  
+            });
+   
+    }
     // Create association between ROI and tag
 };
 

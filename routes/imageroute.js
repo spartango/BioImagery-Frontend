@@ -34,7 +34,7 @@ exports.image = function(req, res){
                     function(err, data) {
                         if(err) {
                             // Error Condition
-                            res.render('404', {title: '404 Bad File'});
+                            res.render('404', {title: '404 Image File Not Found'});
                         } else {
                             res.writeHead(200, {'Content-Type': 'image/tiff' });
                             res.end(data, 'binary');
@@ -45,7 +45,7 @@ exports.image = function(req, res){
             } else {
                 // Error condition
                 // Send a 404 back
-                res.render('404', {title: '404 Bad DB'});
+                res.render('404', {title: '404 Image Record Not Found'});
             }
 
         });  
@@ -151,21 +151,50 @@ exports.rois = function(req, res){
 
 };
 
-exports.createimage =  function(req, res) {
+exports.createimage = function(req, res) {
     //Test: Make some initial images
-    var newImage = Image.build({
-        filename: 'AlignedHiResStack_2_6_2011_00.tif',
-        description: ''
-    })
-    newImage.save().on('success', function() {
-        res.send("Test Saved OK", 200);
-    }).on('failure', function(error){
-        res.send("Failed to Save", 500);
-    });
-
+    var name = req.param('name');
+    if(name) {
+        var newImage = Image.build({
+            filename: name,
+            description: ''
+        })
+        newImage.save().on('success', function() {
+            res.send("Test Saved OK", 200);
+        }).on('failure', function(error){
+            res.send("Failed to Save", 500);
+        });
+    } else {
+        res.send("Bad Params", 400);
+    }
     // TODO setup the form
 };
 
-exports.showimages =  function(req, res) {
-    // Render the images page
+exports.showimages = function(req, res) {
+    //TODO Render the images page
+};
+
+exports.imageinfo = function(req, res) {
+    // Get the image ID
+    var imageId = req.params.id;
+    
+    if(imageId) {
+        Image.find(Number(imageId)).on('success', function(image) {
+            if(image) {
+                // Get the raw file from the disk
+                res.send(Image.stringify(image), 200);
+                // Send it along
+            } else {
+                // Error condition
+                // Send a 404 back
+                res.render('404', {title: '404: Image not Found'});
+            }
+
+        });  
+    } else {
+        // param Error condition
+        // Send a 400 back
+        res.send('Bad Params', 400);
+    }
+};
 };
