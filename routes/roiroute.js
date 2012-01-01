@@ -18,12 +18,13 @@ Roi.hasMany(Tag);
 
 exports.createroi = function(req, res){
     // Get the image ID
-    var imageId = req.param('id');
-    var xOffset = req.param('x');
-    var yOffset = req.param('y');
-    var rWidth  = req.param('width');
-    var rLength = req.param('length');
-     
+    var imageId = req.body.id;
+    var xOffset = req.body.x;
+    var yOffset = req.body.y;
+    var rWidth  = req.body.width;
+    var rLength = req.body.height;
+
+    console.log("Creating ROI");
     // Ensure that all the right params are passed
     if(    imageId  
         && xOffset != null 
@@ -35,7 +36,7 @@ exports.createroi = function(req, res){
             var newRoi = Roi.build({
                 x:      xOffset,
                 y:      yOffset,
-                length: rLength,
+                height: rLength,
                 width:  rWidth
             });
             
@@ -43,19 +44,19 @@ exports.createroi = function(req, res){
             Image.find(Number(imageId)).on('success', function(image) {
                 // This will save the ROI automagically
                 if(image) {
-                    newRoi.setImage(image);
+                    newRoi.setImage(image).on('success', function() {
+                        // Send a 200OK and the new ID
+                        res.send(newRoi.id, 200);
+                    });
+                } else {
+                    res.send('No image', 404);
                 } 
             });
-            
-            // Create an ROI instance
-            // commit it to the db
-            // Send a 200OK and the new ID
-            res.send(newRoi.id, 200);
-
+        
     } else {
         // param Error Condition 
         // Send a 400 back
-        res.send('', 400);
+        res.send('Bad params', 400);
     }
 
 };
@@ -64,14 +65,14 @@ exports.tagroi = function(req, res) {
     // Get the ROI param id
     var roiId = req.params.id;
     // Get the tag param id
-    var tagId = req.param('tag');
+    var tagId = req.body.tag;
     if(roiId && tagId) {
             // Look up the ROI
             Roi.find(roiId).on('success', function(roi) {
                if(roi) {
                     // Look up the tag
                     Tag.find(tagId).on('success', function(tag) {
-                        
+                        // TODO apply tag
                     });
                }  
             });

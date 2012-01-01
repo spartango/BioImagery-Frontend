@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
                 dictify: function(tag) { 
                     return {
                         name: tag.name,
-                        id: tag.id
+                        id:   tag.id
                     }; 
                 }
             },

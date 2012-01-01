@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
     var Roi = sequelize.define('Roi', {
             x:          DataTypes.INTEGER, 
             y:          DataTypes.INTEGER, 
-            length:     DataTypes.INTEGER,
+            height:     DataTypes.INTEGER,
             width:      DataTypes.INTEGER, 
             confidence: DataTypes.INTEGER
         },
@@ -12,10 +12,10 @@ module.exports = function(sequelize, DataTypes) {
                     return {
                         x:          roi.x,
                         y:          roi.y,
-                        length:     roi.length, 
+                        height:     roi.height, 
                         width:      roi.width, 
                         confidence: roi.confidence,
-                        id: roi.id
+                        id:         roi.id
                     };
                 }
             },

@@ -109,7 +109,9 @@ exports.rois = function(req, res){
     var xOffset = req.param('x');
     var yOffset = req.param('y');
     var width   = req.param('width');
-    var length  = req.param('length');
+    var height  = req.param('height');
+    
+    debugger;
 
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
@@ -121,18 +123,18 @@ exports.rois = function(req, res){
                     if(xOffset      != null 
                         && yOffset  != null 
                         && width    != null 
-                        && length   != null) {
+                        && height   != null) {
                         targets = rois.filter(function(roi) {
                             return roi.x >= xOffset
                                    && roi.y >= yOffset
                                    && roi.width < (xOffset + width)
-                                   && roi.length < (yOffset + length);
+                                   && roi.height < (yOffset + height);
                         });
                     } else {
                         // Send everything
                         targets = rois;
                     }
-
+                    debugger;
                     // JSONify targets
                     var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
@@ -153,7 +155,7 @@ exports.rois = function(req, res){
 
 exports.createimage = function(req, res) {
     //Test: Make some initial images
-    var name = req.param('name');
+    var name = req.body.name;
     if(name) {
         var newImage = Image.build({
             filename: name,

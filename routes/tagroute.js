@@ -44,7 +44,7 @@ exports.gettag = function(req, res) {
 
 exports.createtag = function(req, res) {
     // Check for appropriate name param
-    var tname = req.param('name');
+    var tname = req.body.name;
     if(tname) {
         // Create the tag
         var newTag = Tag.build({
