@@ -18,11 +18,11 @@ Roi.hasMany(Tag);
 
 exports.createroi = function(req, res){
     // Get the image ID
-    var imageId = req.params.id;
-    var xOffset = req.params('x');
-    var yOffset = req.params('y');
-    var rWidth  = req.params('width');
-    var rLength = req.params('length');
+    var imageId = req.param('id');
+    var xOffset = req.param('x');
+    var yOffset = req.param('y');
+    var rWidth  = req.param('width');
+    var rLength = req.param('length');
      
     // Ensure that all the right params are passed
     if(    imageId  
