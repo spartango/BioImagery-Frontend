@@ -7,14 +7,14 @@ module.exports = function(sequelize, DataTypes) {
         },
         {   
             classMethods: {
-                stringify: function(image) { 
-                    return JSON.stringify({
+                dictify: function(image) { 
+                    return {
                         filename:    image.filename,
                         length:      image.length, 
                         width:       image.width, 
                         description: image.description,
                         id:          image.id
-                    }); 
+                    }; 
                 }
             },
             instanceMethods: {}

@@ -7,16 +7,16 @@ module.exports = function(sequelize, DataTypes) {
             confidence: DataTypes.INTEGER
         },
         {   
-            classMethods: {
-                stringify: function(roi) { 
-                    return JSON.stringify({
+            classMethods: { 
+                dictify: function(roi) {
+                    return {
                         x:          roi.x,
                         y:          roi.y,
                         length:     roi.length, 
                         width:      roi.width, 
                         confidence: roi.confidence,
                         id: roi.id
-                    }); 
+                    };
                 }
             },
             instanceMethods: {}

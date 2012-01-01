@@ -15,7 +15,7 @@ Roi.hasMany(Tag);
 exports.tags = function(req, res) {
     // Get all the tags from the database
     Tag.findAll().on('success', function(tags){
-        var json = JSON.stringify(tags.map(Tag.stringify));
+        var json = JSON.stringify(tags.map(Tag.dictify));
         // Generate a listing of them
         // Send it along
         res.send(json, 200);
@@ -54,7 +54,7 @@ exports.createtag = function(req, res) {
         // Send back the id
         newTag.save().on('success', function(){
             res.send(newTag.id, 200);
-        })
+        });
 
     } else{
         res.send('Bad Param', 400);

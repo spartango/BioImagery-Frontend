@@ -4,11 +4,11 @@ module.exports = function(sequelize, DataTypes) {
         },
         {   
             classMethods: {
-                stringify: function(tag) { 
-                    return JSON.stringify({
+                dictify: function(tag) { 
+                    return {
                         name: tag.name,
                         id: tag.id
-                    }); 
+                    }; 
                 }
             },
             instanceMethods: {}

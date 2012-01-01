@@ -134,7 +134,7 @@ exports.rois = function(req, res){
                     }
 
                     // JSONify targets
-                    var json = JSON.stringify(targets.map(Roi.stringify));
+                    var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
                 });
                     
@@ -182,7 +182,7 @@ exports.imageinfo = function(req, res) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Get the raw file from the disk
-                res.send(Image.stringify(image), 200);
+                res.send(JSON.stringify(Image.dictify(image)), 200);
                 // Send it along
             } else {
                 // Error condition
