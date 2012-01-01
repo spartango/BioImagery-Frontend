@@ -196,5 +196,5 @@ exports.imageinfo = function(req, res) {
         // Send a 400 back
         res.send('Bad Params', 400);
     }
-};
+
 };
