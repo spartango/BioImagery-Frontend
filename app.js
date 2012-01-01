@@ -3,9 +3,8 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , Sequelize = require('sequelize')
-  , fs = require('fs')
+var express   = require('express'),
+    Sequelize = require('sequelize')
 
 
 // Application Config
@@ -36,9 +35,9 @@ app.configure('production', function(){
 });
 
 // Models
-var Image = db.import(__dirname + "/models/image");
-var Roi   = db.import(__dirname + "/models/roi");
-var Tag   = db.import(__dirname + "/models/tag");
+var Image = db.import(__dirname + '/models/image');
+var Roi   = db.import(__dirname + '/models/roi');
+var Tag   = db.import(__dirname + '/models/tag');
 
 // Relationships
 Image.hasMany(Roi);
@@ -52,18 +51,28 @@ db.sync({force: false}).on('success', function() {
     console.log('MySQL schema cannot be created');
 });
 
+
 // Routes
 
-var routes  = require(__dirname + '/routes')
+var imageroutes = require(__dirname + '/routes/imageroute');
+var roiroutes   = require(__dirname + '/routes/roiroute');
+var tagroutes   = require(__dirname + '/routes/tagroute');
+var routes      = require(__dirname + '/routes/index');
+
+console.log("Loaded Routes");
 
 app.get('/',                     routes.index);
-app.get('/image/:id',            routes.image;        // Provides raw images
-app.get('/image/:id/gettile',    routes.tile);        // Provides tiles
-app.get('/image/:id/getrois',    routes.rois);        // Provides ROIs
-app.post('/image/createimage',   routes.createimage); // Creates an Image
-app.post('/tag/create',          routes.createtag);   // Creates a Tag
-app.post('/roi/create',          routes.createroi);   // Creates a ROI
-app.post('/roi/:id/tagroi',      routes.tagroi);      // Tags an ROI
+app.get('/image',                imageroutes.showimages);  // Give a listing of images
+app.post('/image/create',        imageroutes.createimage); // Creates an Image
+app.get('/image/:id',            imageroutes.image);       // Provides raw images
+app.get('/image/:id/describe',   imageroutes.imageinfo);   // Provides info about the image
+app.get('/image/:id/gettile',    imageroutes.tile);        // Provides tiles
+app.get('/image/:id/getrois',    imageroutes.rois);        // Provides ROIs
+app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
+app.get('/tag',                  tagroutes.tags);          // Lists all Tags
+app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag
+app.post('/roi/create',          roiroutes.createroi);     // Creates a ROI
+app.post('/roi/:id/tagroi',      roiroutes.tagroi);        // Tags an ROI
 
 app.listen(8080);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
