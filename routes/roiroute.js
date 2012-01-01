@@ -1,3 +1,17 @@
+var Sequelize = require('sequelize')
+
+var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
+
+// Models
+var Image = db.import(__dirname +'/../models/image');
+var Roi   = db.import(__dirname +'/../models/roi');
+var Tag   = db.import(__dirname +'/../models/tag');
+
+// Relationships
+Image.hasMany(Roi);
+Roi.belongsTo(Image); 
+Roi.hasMany(Tag);
+
 /*
  * POST create a new roi 
  */
@@ -5,17 +19,17 @@
 exports.createroi = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    var xOffset = req.params.x;
-    var yOffset = req.params.y;
-    var rWidth  = req.params.width;
-    var rLength = req.params.length;
+    var xOffset = req.params('x');
+    var yOffset = req.params('y');
+    var rWidth  = req.params('width');
+    var rLength = req.params('length');
      
     // Ensure that all the right params are passed
     if(    imageId  
-        && xOffset  
-        && yOffset  
-        && rWidth   
-        && rLength ) {
+        && xOffset != null 
+        && yOffset != null
+        && rWidth  != null
+        && rLength != null) {
 
 
             var newRoi = Roi.build({
@@ -26,7 +40,7 @@ exports.createroi = function(req, res){
             });
             
             // Set the image (it better exist)
-            Image.find(imageId).on('success', function(image) {
+            Image.find(Number(imageId)).on('success', function(image) {
                 // This will save the ROI automagically
                 if(image) {
                     newRoi.setImage(image);
@@ -47,5 +61,22 @@ exports.createroi = function(req, res){
 };
 
 exports.tagroi = function(req, res) {
-    
+    // Get the ROI param id
+    var roiId = req.params.id;
+    // Get the tag param id
+    var tagId = req.param('tag');
+    if(roiId && tagId) {
+            // Look up the ROI
+            Roi.find(roiId).on('success', function(roi) {
+               if(roi) {
+                    // Look up the tag
+                    Tag.find(tagId).on('success', function(tag) {
+                        
+                    });
+               }  
+            });
+   
+    }
+    // Create association between ROI and tag
 };
+
