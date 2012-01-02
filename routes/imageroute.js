@@ -174,6 +174,7 @@ exports.createimage = function(req, res) {
 
 exports.showimages = function(req, res) {
     //TODO Render the images page
+    res.render('404', {title: '404: Listing Not Found'});
 };
 
 exports.imageinfo = function(req, res) {
