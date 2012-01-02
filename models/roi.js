@@ -2,21 +2,21 @@ module.exports = function(sequelize, DataTypes) {
     var Roi = sequelize.define('Roi', {
             x:          DataTypes.INTEGER, 
             y:          DataTypes.INTEGER, 
-            length:     DataTypes.INTEGER,
+            height:     DataTypes.INTEGER,
             width:      DataTypes.INTEGER, 
             confidence: DataTypes.INTEGER
         },
         {   
-            classMethods: {
-                stringify: function(roi) { 
-                    return JSON.stringify({
+            classMethods: { 
+                dictify: function(roi) {
+                    return {
                         x:          roi.x,
                         y:          roi.y,
-                        length:     roi.length, 
+                        height:     roi.height, 
                         width:      roi.width, 
                         confidence: roi.confidence,
-                        id: roi.id
-                    }); 
+                        id:         roi.id
+                    };
                 }
             },
             instanceMethods: {}
