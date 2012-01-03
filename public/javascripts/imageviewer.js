@@ -1,3 +1,4 @@
+// Models
 var ViewedImage = function(name, width, height) {
     this.xOffset = 0;
     this.yOffset = 0;
@@ -14,7 +15,7 @@ var Tile = function(x, y, parent) {
     this.getImage = function() {
         // Generate the image name from the parent
 
-        // Buil & assign image
+        // Build & assign image
     };
     this.render   = function(context) { 
         // Check if we have the image
@@ -22,7 +23,7 @@ var Tile = function(x, y, parent) {
             // Calculate where it ought to be in the canvas
 
             // Move it to position
-            
+
         } 
     }
 };
@@ -31,13 +32,27 @@ var Roi = function() {
     // TODO 
 };
 
-
 var tileSet = [];
 var roiSet  = [];
 
+// Model Updates
+
 function updateImageInfo() {
+    // Call for the image description
+
+    // Populate the model
+}
+
+function updateRois() {
+    // Call for the list of rois
+    // Build models from this
+}
+
+function sendRoi() {
     
 }
+
+// View Controls
 
 // Setup Viewport canvas
 function initViewport() {
@@ -57,6 +72,8 @@ function initViewport() {
 function refreshTiles() {
     
 }
+
+// Events
 
 function onViewportMoved() {
     
