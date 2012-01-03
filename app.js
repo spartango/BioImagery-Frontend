@@ -1,4 +1,3 @@
-cr
 /**
  * Module dependencies.
  */
