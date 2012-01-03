@@ -113,8 +113,8 @@ function clearCanvas(context) {
 function refreshTiles() {
     // Generate list of needed tiles
     var newTileset = [];
-    for(var i = 0; i < viewportCanvas.width; i += TILE_WIDTH) {
-        for(var j = 0; j < viewportCanvas.height; j += TILE_LENGTH) {
+    for(var i = 0; i <= viewportCanvas.width; i += TILE_WIDTH/2) {
+        for(var j = 0; j <= viewportCanvas.height; j += TILE_LENGTH/2) {
             // Find tile
             var tileX = i + targetImage.xOffset;
             var tileY = j + targetImage.yOffset;
@@ -161,6 +161,15 @@ function onViewportMoved() {
 
 KEY_INCREMENT = 200;
 
+// Modes
+VIEWPORT_PAN = 0;
+
+VIEWPORT_DRAW = 1;
+viewportDragging = false;
+viewportMode = VIEWPORT_PAN;
+dragStartX = 0;
+dragStartY = 0;
+
 function keyMove(event) {
     if(event.keyCode == '65' && targetImage.xOffset >= KEY_INCREMENT) {
         // Left
@@ -178,22 +187,25 @@ function keyMove(event) {
     onViewportMoved()
 }
 
-viewportDragging = false;
-dragStartX = 0;
-dragStartY = 0;
+
 
 function mouseMove(event) {
     if(viewportDragging) {
         var deltaX = event.pageX - dragStartX;
         var deltaY = event.pageY - dragStartY;
 
-        targetImage.xOffset -= deltaX;
-        targetImage.yOffset -= deltaY;
+        if(viewportMode == VIEWPORT_PAN) {
+            targetImage.xOffset -= deltaX;
+            targetImage.yOffset -= deltaY;
+
+            onViewportMoved();
+        } else if(viewportMode == VIEWPORT_DRAW) {
+            // TODO create a new ROI
+        }
 
         dragStartX = event.pageX;
         dragStartY = event.pageY;
 
-        onViewportMoved();
     }
 }
 
