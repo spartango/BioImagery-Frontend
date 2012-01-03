@@ -177,6 +177,15 @@ exports.showimages = function(req, res) {
     res.render('404', {title: '404: Listing Not Found'});
 };
 
+exports.imageview = function(req, res) {
+    res.render('image', {
+                    title: 'Image', 
+                    imageId: req.params.id, 
+                    imageName: 'StubName',
+                    imageDescription: 'Stub Description'
+                });
+};
+
 exports.imageinfo = function(req, res) {
     // Get the image ID
     var imageId = req.params.id;

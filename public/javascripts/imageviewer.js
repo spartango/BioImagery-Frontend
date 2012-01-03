@@ -11,9 +11,11 @@ var Tile = function(x, y, parent) {
         // Generate the image name from the parent
         // Build & assign image
         var newImage = new Image();
+        var target = this;
         newImage.onload = function() {
             // Mark this image as ready
-            this.image = newImage;
+            target.image = newImage;
+            console.log("Got Image "+target.parent.name);
         };
         newImage.src = '/image/'+this.parent.id+'/gettile?x='+this.x+'&y='+this.y;
 
@@ -27,7 +29,7 @@ var Tile = function(x, y, parent) {
             var yOffset = this.y - this.parent.yOffset;
 
             // Move it to position
-            drawImage(this.image, xOffset, yOffset);
+            context.drawImage(this.image, xOffset, yOffset);
         } 
     }
 };
@@ -49,9 +51,17 @@ var ViewedImage = function(id) {
 
     this.getInfo = function() {
         // Get information from the name
-            // TODO 
-        // Populate this
-            // TODO 
+        var request = new XMLHttpRequest();
+        request.open('GET', '/image/'+this.id+'/describe', false);
+        request.send();
+        var imageInfo = eval('('+request.responseText+')'); // Dangerous. 
+        if(imageInfo) {
+            this.width = imageInfo.width;
+            this.height = imageInfo.height;
+            this.name = imageInfo.filename;
+            console.log("Got info for "+this.name)
+        }
+
     };
 
     this.getRois = function() {
@@ -63,13 +73,13 @@ var ViewedImage = function(id) {
     };
 
     this.renderTiles = function(context) {
-        tileSet.map(function(tile) {
+        this.tileSet.map(function(tile) {
            tile.render(context); 
         });
     };
 
     this.renderRois = function(context) {
-        roiSet.map(function(roi) {
+        this.roiSet.map(function(roi) {
            roi.render(context); 
         });
     };
@@ -82,7 +92,13 @@ var ViewedImage = function(id) {
     };
 
     this.tileAt = function(x, y) {
-          
+        for(var i = 0; i < this.tileSet.length; i++) {
+            if(this.tileSet[i].x <= x && x < this.tileSet[i].x + TILE_WIDTH
+               && this.tileSet[i].y <= y && y < this.tileSet[i].y + TILE_LENGTH) {
+                return true;
+            }
+        }
+        return false;
     };
 
 };
@@ -128,7 +144,7 @@ function renderViewport(context) {
 function onViewportMoved() {
     // Adjust the offsets
         // TODO 
-        
+    refreshTiles();
     // render the Viewport
     renderViewport(viewportContext);
 }
@@ -140,7 +156,7 @@ function initViewport() {
 
     // Check that these things work ok: 
     if(viewportCanvas && viewportCanvas.getContext) {
-        window.viewportContext = canvas.getContext('2d');
+        window.viewportContext = viewportCanvas.getContext('2d');
         // Register Events
             // TODO 
 
