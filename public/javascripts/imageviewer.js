@@ -1,3 +1,6 @@
+TILE_WIDTH  = 400;
+TILE_LENGTH = 400;
+
 var Tile = function(x, y, parent) {
     this.x        = x;
     this.y        = y
@@ -22,7 +25,7 @@ var Tile = function(x, y, parent) {
             // Calculate where it ought to be in the canvas
             var xOffset = this.x - this.parent.xOffset;
             var yOffset = this.y - this.parent.yOffset;
-            
+
             // Move it to position
             drawImage(this.image, xOffset, yOffset);
         } 
@@ -78,6 +81,10 @@ var ViewedImage = function(id) {
         this.renderRois(context);
     };
 
+    this.tileAt = function(x, y) {
+          
+    };
+
 };
 
 // View Controls
@@ -87,13 +94,26 @@ function clearCanvas(context) {
 }
 
 function refreshTiles() {
-        // TODO 
     // Generate list of needed tiles
-    // Scan over tiles
-    // Check if tile is needed? 
-    //    remove from needed list : else remove (<3 GC)
-    // Get images for remaining needed tiles
-    // Add any remaning needed tiles
+    var newTileset = [];
+    for(var i = 0; i < viewportCanvas.width; i += TILE_WIDTH) {
+        for(var j = 0; j < viewportCanvas.height; j += TILE_LENGTH) {
+            // Find tile
+            var tileX = i + targetImage.xOffset;
+            var tileY = j + targetImage.yOffset;
+            var targetTile = targetImage.tileAt(tileX, tileY);
+            if(!targetTile) {
+                // If its not there
+                // Create a new tile
+                targetTile = new Tile(tileX, tileY, targetImage);
+                targetTile.getImage();
+            }
+            // add it to the newTileset
+            newTileset.push(targetTile);
+        }
+    }
+    // Replace the old tileset with the new tileset
+    targetImage.tileSet = newTileset;
 }
 
 function renderViewport(context) {
@@ -108,6 +128,7 @@ function renderViewport(context) {
 function onViewportMoved() {
     // Adjust the offsets
         // TODO 
+        
     // render the Viewport
     renderViewport(viewportContext);
 }
@@ -122,9 +143,10 @@ function initViewport() {
         window.viewportContext = canvas.getContext('2d');
         // Register Events
             // TODO 
+
         // Setup the canvas with the right images
         refreshTiles();
-        renderViewport();
+        renderViewport(viewportContext);
     } 
 }
 
