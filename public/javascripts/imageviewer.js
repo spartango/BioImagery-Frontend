@@ -28,7 +28,7 @@ var Tile = function(x, y, parent) {
             // Calculate where it ought to be in the canvas
             var xOffset = this.x - this.parent.xOffset;
             var yOffset = this.y - this.parent.yOffset;
-            console.log("Rendering tile @ "+xOffset+", "+yOffset);
+            //console.log("Rendering tile @ "+xOffset+", "+yOffset);
             // Move it to position
             context.drawImage(this.image, xOffset, yOffset);
         } 
@@ -178,17 +178,25 @@ function keyMove(event) {
     onViewportMoved()
 }
 
-function mouseBeginMove() {
-    
+viewportDragging = false;
+dragStartX = 0;
+dragStartY = 0;
+
+function mouseMove(event) {
+    if(viewportDragging) {
+        var deltaX = event.pageX - dragStartX;
+        var deltaY = event.pageY - dragStartY;
+
+        targetImage.xOffset -= deltaX;
+        targetImage.yOffset -= deltaY;
+
+        dragStartX = event.pageX;
+        dragStartY = event.pageY;
+
+        onViewportMoved();
+    }
 }
 
-function mouseMove() {
-    
-}
-
-function mouseEndMove() {
-    
-}
 
 // Setup Viewport canvas
 function initViewport() {
@@ -200,6 +208,19 @@ function initViewport() {
         window.viewportContext = viewportCanvas.getContext('2d');
         // Register Events
         window.addEventListener('keydown', keyMove);
+        
+        viewportCanvas.addEventListener('mousedown', function(event) {
+            viewportDragging = true;
+            dragStartX = event.pageX;
+            dragStartY = event.pageY;
+        });
+
+        window.addEventListener('mousemove', mouseMove);
+
+        window.addEventListener('mouseup', function() {
+            viewportDragging = false; 
+        });
+
 
         // Setup the canvas with the right images
         refreshTiles();
