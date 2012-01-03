@@ -1,17 +1,9 @@
-// Models
-var ViewedImage = function(name, width, height) {
-    this.xOffset = 0;
-    this.yOffset = 0;
-    this.width   = width;
-    this.height  = height;
-    this.name    = name;
-};
-
 var Tile = function(x, y, parent) {
     this.x        = x;
     this.y        = y
     this.parent   = parent;
     this.image    = null;
+
     this.getImage = function() {
         // Generate the image name from the parent
 
@@ -32,27 +24,78 @@ var Roi = function() {
     // TODO 
 };
 
-var tileSet = [];
-var roiSet  = [];
+// Models
+var ViewedImage = function(name) {
+    this.xOffset = 0;
+    this.yOffset = 0;
+    this.width   = 0;
+    this.height  = 0;
+    this.name    = name;
+    this.tileSet = [];
+    this.roiSet  = [];
 
-// Model Updates
+    this.getInfo = function() {
+        // Get information from the name
 
-function updateImageInfo() {
-    // Call for the image description
+        // Populate this
 
-    // Populate the model
-}
+    };
 
-function updateRois() {
-    // Call for the list of rois
-    // Build models from this
-}
+    this.getRois = function() {
+        // TODO
+    };
 
-function sendRoi() {
-    
-}
+    this.createRoi = function() {
+        // TODO
+    };
+
+    this.renderTiles = function(context) {
+        tileSet.map(function(tile) {
+           tile.render(context); 
+        });
+    };
+
+    this.renderRois = function(context) {
+        roiSet.map(function(roi) {
+           roi.render(context); 
+        });
+    };
+
+    this.render = function(context) {
+        // Render tiles
+        this.renderTiles(context);
+        // Render rois
+        this.renderRois(context);
+    };
+
+};
 
 // View Controls
+
+function refreshTiles(context) {
+    // Generate list of needed tiles
+    // Scan over tiles
+    // Check if tile is needed? 
+    //    remove from needed list : else remove (<3 GC)
+    // Get images for remaining needed tiles
+    // Add any remaning needed tiles
+}
+
+function renderViewport(context) {
+    // Clear the context
+
+    // Render the image
+    targetImage.render(context);
+}
+
+
+
+function onViewportMoved() {
+    // Adjust the offsets
+
+    // render the Viewport
+    renderViewport(viewportContext);
+}
 
 // Setup Viewport canvas
 function initViewport() {
@@ -60,7 +103,7 @@ function initViewport() {
     window.viewportCanvas = document.getElementById('viewport');  
 
     // Check that these things work ok: 
-    if(canvas && canvas.getContext) {
+    if(viewportCanvas && viewportCanvas.getContext) {
         window.viewportContext = canvas.getContext('2d');
         // Register Events
          
@@ -69,20 +112,17 @@ function initViewport() {
     } 
 }
 
-function refreshTiles() {
-    
-}
+// Setup root
 
-// Events
-
-function onViewportMoved() {
-    
-}
-
-function init() {   
+function init(imageName) {  
+    window.targetImage = new ViewedImage(imageName);
     // Grab info for the target image
-    // Populate the model
+    targetImage.getInfo();
+
+    console.log("TargetImage Ready")
 
     // Init Viewport
+    initViewport();
 
+    console.log("Viewport Ready");
 }
