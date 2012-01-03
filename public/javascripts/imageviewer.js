@@ -6,17 +6,25 @@ var Tile = function(x, y, parent) {
 
     this.getImage = function() {
         // Generate the image name from the parent
-            // TODO 
         // Build & assign image
-            // TODO 
+        var newImage = new Image();
+        newImage.onload = function() {
+            // Mark this image as ready
+            this.image = newImage;
+        };
+        newImage.src = '/image/'+this.parent.id+'/gettile?x='+this.x+'&y='+this.y;
+
     };
-    this.render   = function(context) { 
+
+    this.render = function(context) { 
         // Check if we have the image
-        if(image) {
+        if(this.image) {
             // Calculate where it ought to be in the canvas
-                // TODO 
+            var xOffset = this.x - this.parent.xOffset;
+            var yOffset = this.y - this.parent.yOffset;
+            
             // Move it to position
-                // TODO 
+            drawImage(this.image, xOffset, yOffset);
         } 
     }
 };
@@ -26,12 +34,13 @@ var Roi = function() {
 };
 
 // Models
-var ViewedImage = function(name) {
+var ViewedImage = function(id) {
     this.xOffset = 0;
     this.yOffset = 0;
     this.width   = 0;
     this.height  = 0;
-    this.name    = name;
+    this.name    = '';
+    this.id      = id;
     this.tileSet = [];
     this.roiSet  = [];
 
