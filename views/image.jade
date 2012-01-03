@@ -1,12 +1,21 @@
-h1= imageName
-link(rel='stylesheet', href='/stylesheets/image.css')
-script(src='/javascripts/imageviewer.js')
+!!! 5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/image.css')
+    script(src='/javascripts/backbone-min.js')
+    script(src='/javascripts/jquery-1.7.1.min.js')
+    script(src='/javascripts/imageviewer.js')
 
-#description.textbox
-    p imageDescription
+    body(onload=init())
+        h1= imageName
 
-#viewer.viewbox
-    | <canvas id="viewport" width=500 height=500> 
-    | </canvas>
+        #description.textbox
+            p imageDescription
+
+        #viewer.viewbox
+            | <canvas id="viewport" width=500 height=500> 
+            | </canvas>
 
 
