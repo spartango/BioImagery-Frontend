@@ -1,7 +1,9 @@
-textbox {
-
+div.textbox {
+    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-viewbox {
-    
+canvas {
+    border: 1px solid #999;
+    background-color: #fcfcfc;
+    padding: 4px;
 }

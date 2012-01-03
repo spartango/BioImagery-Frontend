@@ -28,7 +28,7 @@ var Tile = function(x, y, parent) {
             // Calculate where it ought to be in the canvas
             var xOffset = this.x - this.parent.xOffset;
             var yOffset = this.y - this.parent.yOffset;
-
+            console.log("Rendering tile @ "+xOffset+", "+yOffset);
             // Move it to position
             context.drawImage(this.image, xOffset, yOffset);
         } 
@@ -96,10 +96,10 @@ var ViewedImage = function(id) {
         for(var i = 0; i < this.tileSet.length; i++) {
             if(this.tileSet[i].x <= x && x < this.tileSet[i].x + TILE_WIDTH
                && this.tileSet[i].y <= y && y < this.tileSet[i].y + TILE_LENGTH) {
-                return true;
+                return this.tileSet[i];
             }
         }
-        return false;
+        return null;
     };
 
 };
@@ -118,15 +118,19 @@ function refreshTiles() {
             // Find tile
             var tileX = i + targetImage.xOffset;
             var tileY = j + targetImage.yOffset;
-            var targetTile = targetImage.tileAt(tileX, tileY);
-            if(!targetTile) {
-                // If its not there
-                // Create a new tile
-                targetTile = new Tile(tileX, tileY, targetImage);
-                targetTile.getImage();
+            if(tileX >= 0 && tileY >= 0){
+                var targetTile = targetImage.tileAt(tileX, tileY);
+                if(!targetTile) {
+                    // If its not there
+                    // Create a new tile
+                    var floorTileX = Math.floor(tileX / TILE_WIDTH) * TILE_WIDTH;
+                    var floorTileY = Math.floor(tileY / TILE_LENGTH) * TILE_LENGTH;
+                    targetTile = new Tile(floorTileX, floorTileY, targetImage);
+                    targetTile.getImage();
+                }
+                // add it to the newTileset
+                newTileset.push(targetTile);
             }
-            // add it to the newTileset
-            newTileset.push(targetTile);
         }
     }
     // Replace the old tileset with the new tileset
@@ -153,6 +157,39 @@ function onViewportMoved() {
     renderViewport(viewportContext);
 }
 
+// Event Handlers
+
+KEY_INCREMENT = 200;
+
+function keyMove(event) {
+    if(event.keyCode == '65' && targetImage.xOffset >= KEY_INCREMENT) {
+        // Left
+        targetImage.xOffset -= KEY_INCREMENT;
+    } else if(event.keyCode == '87' && targetImage.yOffset >= KEY_INCREMENT) {
+        // Up
+        targetImage.yOffset -= KEY_INCREMENT;
+    } else if(event.keyCode == '83' && targetImage.yOffset < targetImage.height - viewportCanvas.height) {
+        // Down
+        targetImage.yOffset += KEY_INCREMENT;
+    } else if(event.keyCode == '68' && targetImage.xOffset < targetImage.width - viewportCanvas.width) {
+        // Right
+        targetImage.xOffset += KEY_INCREMENT;
+    }
+    onViewportMoved()
+}
+
+function mouseBeginMove() {
+    
+}
+
+function mouseMove() {
+    
+}
+
+function mouseEndMove() {
+    
+}
+
 // Setup Viewport canvas
 function initViewport() {
 
@@ -162,7 +199,7 @@ function initViewport() {
     if(viewportCanvas && viewportCanvas.getContext) {
         window.viewportContext = viewportCanvas.getContext('2d');
         // Register Events
-            // TODO 
+        window.addEventListener('keydown', keyMove);
 
         // Setup the canvas with the right images
         refreshTiles();
