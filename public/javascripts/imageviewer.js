@@ -15,7 +15,8 @@ var Tile = function(x, y, parent) {
         newImage.onload = function() {
             // Mark this image as ready
             target.image = newImage;
-            console.log("Got Image "+target.parent.name);
+            console.log("Got Tile for "+target.x +" "+target.y);
+            redraw();
         };
         newImage.src = '/image/'+this.parent.id+'/gettile?x='+this.x+'&y='+this.y;
 
@@ -139,7 +140,10 @@ function renderViewport(context) {
     targetImage.render(context);
 }
 
-
+// Dirty global function
+function redraw() {
+    renderViewport(viewportContext);
+}
 
 function onViewportMoved() {
     // Adjust the offsets
