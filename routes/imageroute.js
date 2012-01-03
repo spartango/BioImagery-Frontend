@@ -156,10 +156,15 @@ exports.rois = function(req, res){
 exports.createimage = function(req, res) {
     //Test: Make some initial images
     var name = req.body.name;
-    if(name) {
+    var rDescription = req.body.description;
+    var rheight = req.body.height;
+    var rwidth = req.body.width;
+    if(name && rheight && rwidth) {
         var newImage = Image.build({
             filename: name,
-            description: ''
+            description: rDescription,
+            height: rheight,
+            width: rwidth
         })
         newImage.save().on('success', function() {
             res.send("Test Saved OK", 200);
