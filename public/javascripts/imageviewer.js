@@ -6,16 +6,17 @@ var Tile = function(x, y, parent) {
 
     this.getImage = function() {
         // Generate the image name from the parent
-
+            // TODO 
         // Build & assign image
+            // TODO 
     };
     this.render   = function(context) { 
         // Check if we have the image
         if(image) {
             // Calculate where it ought to be in the canvas
-
+                // TODO 
             // Move it to position
-
+                // TODO 
         } 
     }
 };
@@ -36,9 +37,9 @@ var ViewedImage = function(name) {
 
     this.getInfo = function() {
         // Get information from the name
-
+            // TODO 
         // Populate this
-
+            // TODO 
     };
 
     this.getRois = function() {
@@ -72,7 +73,12 @@ var ViewedImage = function(name) {
 
 // View Controls
 
-function refreshTiles(context) {
+function clearCanvas(context) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height); 
+}
+
+function refreshTiles() {
+        // TODO 
     // Generate list of needed tiles
     // Scan over tiles
     // Check if tile is needed? 
@@ -83,7 +89,7 @@ function refreshTiles(context) {
 
 function renderViewport(context) {
     // Clear the context
-
+    clearCanvas(context);
     // Render the image
     targetImage.render(context);
 }
@@ -92,7 +98,7 @@ function renderViewport(context) {
 
 function onViewportMoved() {
     // Adjust the offsets
-
+        // TODO 
     // render the Viewport
     renderViewport(viewportContext);
 }
@@ -106,9 +112,10 @@ function initViewport() {
     if(viewportCanvas && viewportCanvas.getContext) {
         window.viewportContext = canvas.getContext('2d');
         // Register Events
-         
+            // TODO 
         // Setup the canvas with the right images
-
+        refreshTiles();
+        renderViewport();
     } 
 }
 
