@@ -111,8 +111,6 @@ exports.rois = function(req, res){
     var width   = req.param('width');
     var height  = req.param('height');
     
-    debugger;
-
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
@@ -134,7 +132,6 @@ exports.rois = function(req, res){
                         // Send everything
                         targets = rois;
                     }
-                    debugger;
                     // JSONify targets
                     var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
@@ -156,10 +153,15 @@ exports.rois = function(req, res){
 exports.createimage = function(req, res) {
     //Test: Make some initial images
     var name = req.body.name;
-    if(name) {
+    var rDescription = req.body.description;
+    var rheight = req.body.height;
+    var rwidth = req.body.width;
+    if(name && rheight && rwidth) {
         var newImage = Image.build({
             filename: name,
-            description: ''
+            description: rDescription,
+            height: rheight,
+            width: rwidth
         })
         newImage.save().on('success', function() {
             res.send("Test Saved OK", 200);
@@ -174,6 +176,16 @@ exports.createimage = function(req, res) {
 
 exports.showimages = function(req, res) {
     //TODO Render the images page
+    res.render('404', {title: '404: Listing Not Found'});
+};
+
+exports.imageview = function(req, res) {
+    res.render('image', {
+                    title: 'Image', 
+                    imageId: req.params.id, 
+                    imageName: 'StubName',
+                    imageDescription: 'Stub Description'
+                });
 };
 
 exports.imageinfo = function(req, res) {
