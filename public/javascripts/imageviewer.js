@@ -35,8 +35,21 @@ var Tile = function(x, y, parent) {
     }
 };
 
-var Roi = function() {
-    // TODO 
+var Roi = function(x, y, height, width, confidence, id, parent) {
+    this.x          = x;
+    this.y          = y;
+    this.height     = height;
+    this.width      = width;
+    this.id         = id;
+    this.confidence = confidence;
+    this.parent     = parent;
+
+    this.render = function(context) {
+        // Offset the coords by the parent offsets
+        // Move the context
+        // Draw a box at the coords
+    }
+
 };
 
 // Models
