@@ -35,7 +35,7 @@ var Tile = function(x, y, parent) {
     }
 };
 
-var Roi = function(x, y, height, width, confidence, id, parent) {
+var Roi = function(x, y, width, height, confidence, id, parent) {
     this.x          = x;
     this.y          = y;
     this.height     = height;
@@ -46,8 +46,17 @@ var Roi = function(x, y, height, width, confidence, id, parent) {
 
     this.render = function(context) {
         // Offset the coords by the parent offsets
-        // Move the context
-        // Draw a box at the coords
+        var xCoord = this.x - parent.xOffset;
+        var yCoord = this.y - parent.yOffset;
+        // Check that we should render
+        if(xCoord >= 0 && yCoord >= 0 
+            && xCoord < context.canvas.width 
+            && yCoord < context.canvas.height) {
+            // Select a color
+            ctx.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+            // Draw a box at the coords
+            context.strokeRect(xCoord, yCoord, this.width, this.height);
+        }
     }
 
 };
@@ -79,7 +88,24 @@ var ViewedImage = function(id) {
     };
 
     this.getRois = function() {
-        // TODO
+        // TODO selectively get Rois
+        var request = new XMLHttpRequest();
+        request.open('GET', '/image/'+this.id+'/getrois', false);
+        request.send();
+        var rois = eval('('+request.responseText+')'); // Dangerous. 
+        if(rois) {
+            // Build objects
+            for(var i = 0; i<rois.length; i++) {
+                var t_roi = rois[i];
+                roiSet.push(new Roi(t_roi.x, 
+                                    t_roi.y, 
+                                    t_roi.width, 
+                                    t_roi.height, 
+                                    t_roi.confidence, 
+                                    t_roi.id,
+                                    this));
+            }
+        }
     };
 
     this.createRoi = function() {
@@ -259,7 +285,7 @@ function init(imageName) {
     window.targetImage = new ViewedImage(imageName);
     // Grab info for the target image
     targetImage.getInfo();
-
+    targetImage.getRois();
     console.log("TargetImage Ready")
 
     // Init Viewport

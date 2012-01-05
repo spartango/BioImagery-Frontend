@@ -111,8 +111,6 @@ exports.rois = function(req, res){
     var width   = req.param('width');
     var height  = req.param('height');
     
-    debugger;
-
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
@@ -134,7 +132,6 @@ exports.rois = function(req, res){
                         // Send everything
                         targets = rois;
                     }
-                    debugger;
                     // JSONify targets
                     var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
