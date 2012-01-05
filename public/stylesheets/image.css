@@ -1,0 +1,9 @@
+div.textbox {
+    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+canvas {
+    border: 1px solid #999;
+    background-color: #fcfcfc;
+    padding: 4px;
+}

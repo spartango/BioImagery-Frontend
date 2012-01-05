@@ -1,0 +1,20 @@
+!!! 5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/image.css')
+    script(src='/javascripts/jquery-1.7.1.min.js')
+    script(src='/javascripts/imageviewer.js')
+
+    body(onload='init('+imageId+')')
+        h1= imageName
+
+        #description.textbox
+            p= imageDescription
+
+        #viewer.viewbox
+            | <canvas id="viewport" width=1000 height=600> 
+            | </canvas>
+
+
