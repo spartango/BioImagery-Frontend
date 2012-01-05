@@ -49,11 +49,12 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         var xCoord = this.x - parent.xOffset;
         var yCoord = this.y - parent.yOffset;
         // Check that we should render
-        if(xCoord >= 0 && yCoord >= 0 
+        if(xCoord + this.width >= 0 
+            && yCoord + this.height >= 0
             && xCoord < context.canvas.width 
-            && yCoord < context.canvas.height) {
+            && yCoord < context.canvas.height){
             // Select a color
-            ctx.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+            context.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
             // Draw a box at the coords
             context.strokeRect(xCoord, yCoord, this.width, this.height);
         }
@@ -97,7 +98,7 @@ var ViewedImage = function(id) {
             // Build objects
             for(var i = 0; i<rois.length; i++) {
                 var t_roi = rois[i];
-                roiSet.push(new Roi(t_roi.x, 
+                this.roiSet.push(new Roi(t_roi.x, 
                                     t_roi.y, 
                                     t_roi.width, 
                                     t_roi.height, 
