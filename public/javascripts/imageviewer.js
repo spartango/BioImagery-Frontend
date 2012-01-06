@@ -189,12 +189,15 @@ function redraw() {
     renderViewport(viewportContext);
 }
 
-function onViewportMoved() {
-    // Adjust the offsets
-        // TODO 
-    refreshTiles();
-    // render the Viewport
-    renderViewport(viewportContext);
+function onViewportMoved(deltaX, deltaY) {
+    targetImage.xOffset += deltaX;
+    targetImage.yOffset += deltaY;
+    if(deltaX != 0 || deltaY != 0) {
+        // Adjust the offsets
+        refreshTiles();
+        // render the Viewport
+        renderViewport(viewportContext);
+    }
 }
 
 // Event Handlers
@@ -203,31 +206,55 @@ KEY_INCREMENT = 200;
 
 // Modes
 VIEWPORT_PAN = 0;
-
 VIEWPORT_DRAW = 1;
+
 viewportDragging = false;
 viewportMode = VIEWPORT_PAN;
 dragStartX = 0;
 dragStartY = 0;
 
+selectedRoi = null;
+
 function keyMove(event) {
     if(event.keyCode == '65' && targetImage.xOffset >= KEY_INCREMENT) {
         // Left
-        targetImage.xOffset -= KEY_INCREMENT;
+        onViewportMoved(-KEY_INCREMENT, 0);
     } else if(event.keyCode == '87' && targetImage.yOffset >= KEY_INCREMENT) {
         // Up
-        targetImage.yOffset -= KEY_INCREMENT;
+        onViewportMoved(0, -KEY_INCREMENT);
     } else if(event.keyCode == '83' && targetImage.yOffset < targetImage.height - viewportCanvas.height) {
         // Down
-        targetImage.yOffset += KEY_INCREMENT;
+        onViewportMoved(0, KEY_INCREMENT);
     } else if(event.keyCode == '68' && targetImage.xOffset < targetImage.width - viewportCanvas.width) {
         // Right
-        targetImage.xOffset += KEY_INCREMENT;
+        onViewportMoved(KEY_INCREMENT, 0);
     }
-    onViewportMoved()
 }
 
+function mouseDown(event) {
+    if(viewportMode == VIEWPORT_DRAW) {
+        // TODO create a new ROI
+        var newRoi = new ROI(event.pageX - canvas.offsetLeft, 
+                             event.pageY - canvas.offsetTop, 0, 0, null, targetImage);
+        targetImage.roiSet.push(newRoi);
+        // Mark it selected
+        selectedRoi = newRoi;
+    } else if(viewportMode == VIEWPORT_PAN) {
+        // TODO check for ROIs beneath
+    }
+    viewportDragging = true;
+    dragStartX = event.pageX;
+    dragStartY = event.pageY;
+}
 
+function mouseUp (event) {
+    viewportDragging = false;
+
+    // Commit any ROI changes
+    if(selectedRoi) {
+        
+    }
+}
 
 function mouseMove(event) {
     if(viewportDragging) {
@@ -235,12 +262,22 @@ function mouseMove(event) {
         var deltaY = event.pageY - dragStartY;
 
         if(viewportMode == VIEWPORT_PAN) {
-            targetImage.xOffset -= deltaX;
-            targetImage.yOffset -= deltaY;
+            onViewportMoved(-deltaX, -deltaY);
+        } else if(viewportMode == VIEWPORT_DRAW && selectedRoi) {
+            if(selectedRoi.width == 0 && deltaX < 0) {
+                // Roll the x coord back
+                selectedRoi.x += deltaX;
+            } else {
+                selectedRoi.width += deltaX;
+            }
 
-            onViewportMoved();
-        } else if(viewportMode == VIEWPORT_DRAW) {
-            // TODO create a new ROI
+            if(selectedRoi.height == 0 && deltaY < 0) {
+                // Roll the y coord back
+                selectedRoi.y += deltaY;
+            } else {
+                selectedRoi.height += deltaY;
+            }
+            
         }
 
         dragStartX = event.pageX;
@@ -260,18 +297,9 @@ function initViewport() {
         window.viewportContext = viewportCanvas.getContext('2d');
         // Register Events
         window.addEventListener('keydown', keyMove);
-        
-        viewportCanvas.addEventListener('mousedown', function(event) {
-            viewportDragging = true;
-            dragStartX = event.pageX;
-            dragStartY = event.pageY;
-        });
-
+        viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
-
-        window.addEventListener('mouseup', function() {
-            viewportDragging = false; 
-        });
+        window.addEventListener('mouseup', mouseUp);
 
 
         // Setup the canvas with the right images
