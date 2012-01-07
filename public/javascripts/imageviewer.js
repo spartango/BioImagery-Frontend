@@ -36,6 +36,7 @@ var Tile = function(x, y, parent) {
 };
 
 var Roi = function(x, y, width, height, confidence, id, parent) {
+    // Object properties
     this.x          = x;
     this.y          = y;
     this.height     = height;
@@ -43,6 +44,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.id         = id;
     this.confidence = confidence;
     this.parent     = parent;
+
     this.saved      = false;
 
     this.render = function(context) {
@@ -61,7 +63,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             context.strokeRect(xCoord, yCoord, this.width, this.height);
 
             // Draw the icon for handle
-            
+
             // Draw the icon for delete
         }
     };
@@ -82,7 +84,22 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                      +'&width='+this.width
                      +'&height='+this.height
                      +'&id='+this.parent.id);
-    }
+    };
+
+    // View Event handling
+    this.onSelect = function(xpos, ypos) {
+        // Check for left corner
+        // if unsaved, save
+
+        // Check for right corner
+        // Delete
+    };
+
+    this.onDrag = function(deltaX, deltaY) {
+        // If this is a resize, resize
+
+        // If this is a move, mod coords
+    };
 
 };
 
@@ -134,6 +151,11 @@ var ViewedImage = function(id) {
             }
         }
     };
+
+    this.roiAt = function (xpos, ypos) {
+        // TODO check for ROIs at position
+        return null;
+    }
 
     this.renderTiles = function(context) {
         this.tileSet.map(function(tile) {
@@ -237,6 +259,15 @@ dragStartY = 0;
 
 selectedRoi = null;
 
+// Event Utils
+function getRelativeX(event) {
+    return (event.pageX - viewportCanvas.offsetLeft);
+}
+
+function getRelativeY(event) {
+    return (event.pageY - viewportCanvas.offsetTop);
+}
+
 function keyMove(event) {
     if(event.keyCode == '65' && targetImage.xOffset >= KEY_INCREMENT) {
         // Left
@@ -254,28 +285,38 @@ function keyMove(event) {
 }
 
 function mouseDown(event) {
-    // Check for buttons
-    if(false){
-        
-    } else {
-        // Starting a drag
-        viewportDragging = true;
-        dragStartX = event.pageX;
-        dragStartY = event.pageY;
-    }
-
     if(viewportMode == VIEWPORT_DRAW) {
         // TODO create a new ROI
-        var newRoi = new Roi((event.pageX - viewportCanvas.offsetLeft) + targetImage.xOffset, 
-                             (event.pageY - viewportCanvas.offsetTop)  + targetImage.yOffset, 
+        var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
+                             getRelativeY(event)  + targetImage.yOffset, 
                              0, 0, 0, null, targetImage);
         targetImage.roiSet.push(newRoi);
         // Mark it selected
         selectedRoi = newRoi;
+        
+        // Starting a drag
+        viewportDragging = true;
+        dragStartX = event.pageX;
+        dragStartY = event.pageY;
+        document.body.style.cursor = 'crosshair';
     } else if(viewportMode == VIEWPORT_PAN) {
         // TODO check for ROIs beneath
+        selectedRoi = targetImage.roiAt(getRelativeX(event), 
+                                        getRelativeY(event));
+        if(selectedRoi){
+            // dispatch event with coords relative to it
+            selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
+                                 getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
+        } 
+        
+        viewportDragging = true;
+        dragStartX = event.pageX;
+        dragStartY = event.pageY;
+        document.body.style.cursor = 'all-scroll';
     }
-
+    
+    // Don't do the stupid select thing in the canvas
+    event.preventDefault();
 }
 
 function mouseUp (event) {
@@ -284,6 +325,8 @@ function mouseUp (event) {
     if(selectedRoi) {
         selectedRoi = null;
     }
+
+    document.body.style.cursor = 'default';
 }
 
 function mouseMove(event) {
@@ -292,7 +335,11 @@ function mouseMove(event) {
         var deltaY = event.pageY - dragStartY;
 
         if(viewportMode == VIEWPORT_PAN) {
-            onViewportMoved(-deltaX, -deltaY);
+            if(selectedRoi) {
+                selectedRoi.onDrag(deltaX, deltaY);
+            } else {
+                onViewportMoved(-deltaX, -deltaY);
+            }
         } else if(viewportMode == VIEWPORT_DRAW && selectedRoi) {
             selectedRoi.width += deltaX;
             selectedRoi.height += deltaY;
