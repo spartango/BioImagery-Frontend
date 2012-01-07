@@ -2,8 +2,8 @@ TILE_WIDTH  = 400;
 TILE_LENGTH = 400;
 
 // Icon prep
-ICON_WIDTH  = 24;
-ICON_HEIGHT = 24;
+ICON_WIDTH  = 22;
+ICON_HEIGHT = 22;
 
 var removeIcon = new Image();
 removeIcon.src = '/images/icons/remove.png'
@@ -60,6 +60,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
 
     this.saved      = false;
     this.highlight  = false;
+    this.resizing   = false;
 
     this.render = function(context) {
         // Offset the coords by the parent offsets
@@ -77,21 +78,18 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             context.strokeRect(xCoord, yCoord, this.width, this.height);
 
             // Draw the icon for handle
-            if(!this.saved)
-                context.drawImage(saveIcon, 
-                                  xCoord - ICON_WIDTH / 2, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
-            else if(this.highlight)
-                context.drawImage(selectedHandleIcon, 
-                                  xCoord - ICON_WIDTH / 2, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
-            else
-                context.drawImage(handleIcon, 
-                                  xCoord - ICON_WIDTH / 2, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
+            context.drawImage((this.highlight? selectedHandleIcon :
+                                        (!this.saved ? saveIcon : handleIcon)),
+                                xCoord - ICON_WIDTH / 2, 
+                                yCoord - ICON_HEIGHT / 2, 
+                                ICON_WIDTH, ICON_HEIGHT);
+
+            if(this.resizing)
+                context.drawImage(selectedHandleIcon,
+                                    xCoord - ICON_WIDTH / 2 + this.width, 
+                                    yCoord - ICON_HEIGHT / 2 + this.height, 
+                                    ICON_WIDTH, ICON_HEIGHT);
+            
 
             if(!this.id) {
                 // Draw the icon for delete
@@ -155,29 +153,51 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
            && xpos <= ICON_WIDTH / 2 
            && ypos >= -ICON_HEIGHT / 2 
            && ypos <= ICON_HEIGHT / 2) {
-            
             this.save();
+            return false;
         }
 
-        // Check for right corner
-        if(!this.id 
+        // Check for upper right corner
+        else if(!this.id 
            && xpos >= this.width - ICON_WIDTH / 2 
            && xpos <= this.width + ICON_WIDTH / 2 
-           && ypos >= this.height - ICON_HEIGHT / 2 
-           && ypos <= this.height + ICON_HEIGHT / 2) {
+           && ypos >= -ICON_HEIGHT / 2 
+           && ypos <= ICON_HEIGHT / 2) {
 
             console.log("Deleting "+this);
             this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
+            return false;
+        } 
+        // Lower right corner
+        else if(xpos >= this.width - ICON_WIDTH  
+           && xpos <= this.width + ICON_WIDTH 
+           && ypos >= this.height - ICON_HEIGHT 
+           && ypos <= this.height + ICON_HEIGHT) {
+
+            // resizing mode
+            this.resizing = true;
+            return true;
+        } else {
+            this.resizing = false;
+            return (xpos >= -ICON_WIDTH
+                  && xpos <= ICON_WIDTH
+                  && ypos >= -ICON_HEIGHT 
+                  && ypos <= ICON_HEIGHT); 
         }
-        // Delete
+        
     };
 
     this.onDrag = function(deltaX, deltaY) {
         // If this is a resize, resize
 
         // If this is a move, mod coords
-        this.x += deltaX;
-        this.y += deltaY;
+        if(!this.resizing) {
+            this.x += deltaX;
+            this.y += deltaY;
+        } else {
+            this.width += deltaX;
+            this.height += deltaY;
+        }
         this.saved = false;
     };
 
@@ -236,9 +256,9 @@ var ViewedImage = function(id) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
             if(xpos >= t_roi.x - ICON_WIDTH
-               && xpos < t_roi.x + ICON_WIDTH
+               && xpos < t_roi.x + ICON_WIDTH + t_roi.width
                && ypos >= t_roi.y - ICON_HEIGHT
-               && ypos < t_roi.y + ICON_HEIGHT ) {
+               && ypos < t_roi.y + ICON_HEIGHT + t_roi.height) {
                    return t_roi;
                }
         }
@@ -374,13 +394,14 @@ function keyMove(event) {
 
 function mouseDown(event) {
     if(viewportMode == VIEWPORT_DRAW) {
-        // TODO create a new ROI
         var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
                              getRelativeY(event) + targetImage.yOffset, 
                              0, 0, 0, null, targetImage);
         targetImage.roiSet.push(newRoi);
         // Mark it selected
         selectedRoi = newRoi;
+        selectedRoi.highlight = true;
+        selectedRoi.resizing = true;
         
         // Starting a drag
         viewportDragging = true;
@@ -388,20 +409,21 @@ function mouseDown(event) {
         dragStartY = event.pageY;
         document.body.style.cursor = 'crosshair';
     } else if(viewportMode == VIEWPORT_PAN) {
-        // TODO check for ROIs beneath
         selectedRoi = targetImage.roiAt(getRelativeX(event), 
                                         getRelativeY(event));
-        if(selectedRoi){
-            console.log("Selected "+selectedRoi);
-            // dispatch event with coords relative to it
-            selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
-                                 getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
-        } 
-        
         viewportDragging = true;
-        dragStartX = event.pageX;
-        dragStartY = event.pageY;
-        document.body.style.cursor = 'all-scroll';
+        if(selectedRoi){
+            selectedRoi.highlight = true;
+            // dispatch event with coords relative to it
+            viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
+                                 getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
+            redraw();
+        } 
+        if(viewportDragging) {
+            dragStartX = event.pageX;
+            dragStartY = event.pageY;
+            document.body.style.cursor = 'all-scroll';
+        }
     }
     
     // Don't do the stupid select thing in the canvas
@@ -412,7 +434,10 @@ function mouseUp (event) {
     viewportDragging = false;
 
     if(selectedRoi) {
-        selectedRoi = null;
+        selectedRoi.resizing  = false;
+        selectedRoi.highlight = false;
+        selectedRoi           = null;
+        redraw();
     }
 
     document.body.style.cursor = 'default';
@@ -422,16 +447,10 @@ function mouseMove(event) {
     if(viewportDragging) {
         var deltaX = event.pageX - dragStartX;
         var deltaY = event.pageY - dragStartY;
-
-        if(viewportMode == VIEWPORT_PAN) {
-            if(selectedRoi) {
-                selectedRoi.onDrag(deltaX, deltaY);
-            } else {
-                onViewportMoved(-deltaX, -deltaY);
-            }
-        } else if(viewportMode == VIEWPORT_DRAW && selectedRoi) {
-            selectedRoi.width += deltaX;
-            selectedRoi.height += deltaY;
+        if(selectedRoi) {
+            selectedRoi.onDrag(deltaX, deltaY);
+        } else {
+            onViewportMoved(-deltaX, -deltaY);
         }
 
         dragStartX = event.pageX;
