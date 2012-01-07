@@ -255,10 +255,10 @@ var ViewedImage = function(id) {
     this.roiAt = function (xpos, ypos) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
-            if(xpos >= t_roi.x - ICON_WIDTH
-               && xpos < t_roi.x + ICON_WIDTH + t_roi.width
-               && ypos >= t_roi.y - ICON_HEIGHT
-               && ypos < t_roi.y + ICON_HEIGHT + t_roi.height) {
+            if(xpos >= t_roi.x - ICON_WIDTH - this.xOffset
+               && xpos < t_roi.x + ICON_WIDTH + t_roi.width - this.xOffset
+               && ypos >= t_roi.y - ICON_HEIGHT - this.yOffset
+               && ypos < t_roi.y + ICON_HEIGHT + t_roi.height - this.yOffset) {
                    return t_roi;
                }
         }
