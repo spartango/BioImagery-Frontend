@@ -59,6 +59,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.parent     = parent;
 
     this.saved      = false;
+    this.highlight  = false;
 
     this.render = function(context) {
         // Offset the coords by the parent offsets
@@ -78,6 +79,11 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             // Draw the icon for handle
             if(!this.saved)
                 context.drawImage(saveIcon, 
+                                  xCoord - ICON_WIDTH / 2, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
+            else if(this.highlight)
+                context.drawImage(selectedHandleIcon, 
                                   xCoord - ICON_WIDTH / 2, 
                                   yCoord - ICON_HEIGHT / 2, 
                                   ICON_WIDTH, ICON_HEIGHT);
@@ -144,7 +150,6 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.onSelect = function(xpos, ypos) {
         // Check for left corner
         // if unsaved, save
-        console.log('Select @ '+xpos +' '+ypos);
         if(!this.saved 
            && xpos >= -ICON_WIDTH / 2 
            && xpos <= ICON_WIDTH / 2 
@@ -163,7 +168,6 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
 
             console.log("Deleting "+this);
             this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
-            // TODO actually delete from DB(?)
         }
         // Delete
     };
@@ -231,10 +235,10 @@ var ViewedImage = function(id) {
     this.roiAt = function (xpos, ypos) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
-            if(xpos >= t_roi.x 
-               && xpos < t_roi.x + t_roi.width
-               && ypos >= t_roi.y
-               && ypos < t_roi.y + t_roi.height) {
+            if(xpos >= t_roi.x - ICON_WIDTH
+               && xpos < t_roi.x + ICON_WIDTH
+               && ypos >= t_roi.y - ICON_HEIGHT
+               && ypos < t_roi.y + ICON_HEIGHT ) {
                    return t_roi;
                }
         }
