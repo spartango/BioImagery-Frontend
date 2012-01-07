@@ -144,6 +144,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.onSelect = function(xpos, ypos) {
         // Check for left corner
         // if unsaved, save
+        console.log('Select @ '+xpos +' '+ypos);
         if(!this.saved 
            && xpos >= -ICON_WIDTH / 2 
            && xpos <= ICON_WIDTH / 2 
@@ -230,9 +231,9 @@ var ViewedImage = function(id) {
     this.roiAt = function (xpos, ypos) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
-            if(t_roi.x >= xpos 
+            if(xpos >= t_roi.x 
                && xpos < t_roi.x + t_roi.width
-               && t_roi.y >= ypos 
+               && ypos >= t_roi.y
                && ypos < t_roi.y + t_roi.height) {
                    return t_roi;
                }
