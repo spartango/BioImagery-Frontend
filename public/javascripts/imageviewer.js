@@ -1,6 +1,19 @@
 TILE_WIDTH  = 400;
 TILE_LENGTH = 400;
 
+// Icon prep
+ICON_WIDTH  = 30;
+ICON_HEIGHT = 30;
+
+var removeIcon = new Image();
+removeIcon.src = '/images/icons/remove.png'
+var handleIcon = new Image();
+handleIcon.src = '/images/icons/handle.png'
+var selectedHandleIcon = new Image();
+selectedHandleIcon.src = '/images/icons/ghandle.png'
+var saveIcon = new Image();
+saveIcon.src = '/images/icons/check.png'
+
 var Tile = function(x, y, parent) {
     this.x        = x;
     this.y        = y
@@ -63,8 +76,22 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             context.strokeRect(xCoord, yCoord, this.width, this.height);
 
             // Draw the icon for handle
+            if(!this.saved)
+                context.drawImage(saveIcon, 
+                                  xCoord - ICON_WIDTH / 2, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
+            else
+                context.drawImage(handleIcon, 
+                                  xCoord - ICON_WIDTH / 2, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
 
             // Draw the icon for delete
+            context.drawImage(removeIcon, 
+                                  xCoord - ICON_WIDTH / 2 + this.width, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
         }
     };
 
@@ -288,7 +315,7 @@ function mouseDown(event) {
     if(viewportMode == VIEWPORT_DRAW) {
         // TODO create a new ROI
         var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
-                             getRelativeY(event)  + targetImage.yOffset, 
+                             getRelativeY(event) + targetImage.yOffset, 
                              0, 0, 0, null, targetImage);
         targetImage.roiSet.push(newRoi);
         // Mark it selected
