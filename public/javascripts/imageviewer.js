@@ -87,46 +87,56 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                                   yCoord - ICON_HEIGHT / 2, 
                                   ICON_WIDTH, ICON_HEIGHT);
 
-            // Draw the icon for delete
-            context.drawImage(removeIcon, 
-                                  xCoord - ICON_WIDTH / 2 + this.width, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
+            if(!this.id) {
+                // Draw the icon for delete
+                context.drawImage(removeIcon, 
+                                      xCoord - ICON_WIDTH / 2 + this.width, 
+                                      yCoord - ICON_HEIGHT / 2, 
+                                      ICON_WIDTH, ICON_HEIGHT);
+            }
         }
     };
 
     this.save = function() {
         var request = new XMLHttpRequest();
+
         var target = this;
         if(this.id){
             // Updating an existing ROI
+            var params = 'x='+this.x 
+                         +'&y='+this.y
+                         +'&width='+this.width
+                         +'&height='+this.height;
+
             request.open('POST', '/roi/'+this.id+'/update', true);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
             request.onload = function() {
                 target.saved = true;
                 console.log('updated ROI '+target.id);
                 redraw();
             };
-            // TODO should really make this JSON.
-            request.send('x='+this.x 
-                         +'&y='+this.y
-                         +'&width='+this.width
-                         +'&height='+this.height);
-        }
+
+            request.send(params);
         } else {
             // Creating a new ROI
+            var params = 'x='+this.x 
+                         +'&y='+this.y
+                         +'&width='+this.width
+                         +'&height='+this.height
+                         +'&id='+this.parent.id;
+
             request.open('POST', '/roi/create', true);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
             request.onload = function() {
                 target.id = request.responseText;
                 target.saved = true;
                 console.log('saved ROI '+target.id);
                 redraw();
             };
-            // TODO should really make this JSON.
-            request.send('x='+this.x 
-                         +'&y='+this.y
-                         +'&width='+this.width
-                         +'&height='+this.height
-                         +'&id='+this.parent.id);
+
+            request.send(params);
         }
     };
 
@@ -144,7 +154,8 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         }
 
         // Check for right corner
-        if(xpos >= this.width - ICON_WIDTH / 2 
+        if(!this.id 
+           && xpos >= this.width - ICON_WIDTH / 2 
            && xpos <= this.width + ICON_WIDTH / 2 
            && ypos >= this.height - ICON_HEIGHT / 2 
            && ypos <= this.height + ICON_HEIGHT / 2) {

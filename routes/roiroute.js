@@ -73,21 +73,21 @@ exports.updateroi = function(req, res){
     var rWidth  = req.body.width;
     var rLength = req.body.height;
 
-    console.log("Updating ROI: "+roiId);
     // Ensure that all the right params are passed
     if(    roiId  
         && xOffset != null 
         && yOffset != null
         && rWidth  != null
         && rLength != null) {
-
-
-            Roi.find(roiId).on('success', function(roi)){
+            console.log("Updating ROI: "+roiId);
+            Roi.find(Number(roiId)).on('success', function(roi){
                if(roi) {
                    roi.x      = xOffset;
                    roi.y      = yOffset;
                    roi.width  = rWidth;
                    roi.height = rLength;
+
+                   console.log(roi.toString());
 
                    roi.save();
                    res.send('', 200);
