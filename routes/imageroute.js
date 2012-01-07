@@ -180,12 +180,28 @@ exports.showimages = function(req, res) {
 };
 
 exports.imageview = function(req, res) {
-    res.render('image', {
+    var imageId = req.params.id;
+    if(imageId) {
+        Image.find(Number(imageId)).on('success', function(image) {
+            if(image) {
+                res.render('image', {
                     title: 'Image', 
-                    imageId: req.params.id, 
-                    imageName: 'StubName',
-                    imageDescription: 'Stub Description'
+                    imageId: imageId, 
+                    imageName: image.filename,
+                    imageDescription: image.description
                 });
+            } else {
+                // Error condition
+                // Send a 404 back
+                res.render('404', {title: '404: Image not Found'});
+            }
+
+        }); 
+    } else {
+        // param Error condition
+        // Send a 400 back
+        res.send('Bad Params', 400);
+    }
 };
 
 exports.imageinfo = function(req, res) {
