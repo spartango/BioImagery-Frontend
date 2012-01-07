@@ -61,6 +61,51 @@ exports.createroi = function(req, res){
 
 };
 
+/*
+ * POST update an roi 
+ */
+
+exports.updateroi = function(req, res){
+    // Get the image ID
+    var roiId   = req.params.id;
+    var xOffset = req.body.x;
+    var yOffset = req.body.y;
+    var rWidth  = req.body.width;
+    var rLength = req.body.height;
+
+    console.log("Updating ROI: "+roiId);
+    // Ensure that all the right params are passed
+    if(    roiId  
+        && xOffset != null 
+        && yOffset != null
+        && rWidth  != null
+        && rLength != null) {
+
+
+            Roi.find(roiId).on('success', function(roi)){
+               if(roi) {
+                   roi.x      = xOffset;
+                   roi.y      = yOffset;
+                   roi.width  = rWidth;
+                   roi.height = rLength;
+
+                   roi.save();
+                   res.send('', 200);
+               } else {
+                   res.send('No Such ROI', 404);
+               }
+
+            });
+           
+        
+    } else {
+        // param Error Condition 
+        // Send a 400 back
+        res.send('Bad params', 400);
+    }
+
+};
+
 exports.tagroi = function(req, res) {
     // Get the ROI param id
     var roiId = req.params.id;

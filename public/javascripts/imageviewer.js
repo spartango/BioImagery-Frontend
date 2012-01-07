@@ -31,7 +31,7 @@ var Tile = function(x, y, parent) {
             console.log("Got Tile for "+target.x +" "+target.y);
             redraw();
         };
-        newImage.src = '/image/'+this.parent.id+'/gettile?x='+this.x+'&y='+this.y;
+        newImage.src = '/image/'+this.parent.id+'/tile?x='+this.x+'&y='+this.y;
 
     };
 
@@ -98,20 +98,36 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.save = function() {
         var request = new XMLHttpRequest();
         var target = this;
-
-        request.open('POST', '/roi/create', true);
-        request.onload = function() {
-            target.id = request.responseText;
-            target.saved = true;
-            console.log('saved ROI '+target.id);
-            redraw();
-        };
-        // TODO should really make this JSON.
-        request.send('x='+this.x 
-                     +'&y='+this.y
-                     +'&width='+this.width
-                     +'&height='+this.height
-                     +'&id='+this.parent.id);
+        if(this.id){
+            // Updating an existing ROI
+            request.open('POST', '/roi/'+this.id+'/update', true);
+            request.onload = function() {
+                target.saved = true;
+                console.log('updated ROI '+target.id);
+                redraw();
+            };
+            // TODO should really make this JSON.
+            request.send('x='+this.x 
+                         +'&y='+this.y
+                         +'&width='+this.width
+                         +'&height='+this.height);
+        }
+        } else {
+            // Creating a new ROI
+            request.open('POST', '/roi/create', true);
+            request.onload = function() {
+                target.id = request.responseText;
+                target.saved = true;
+                console.log('saved ROI '+target.id);
+                redraw();
+            };
+            // TODO should really make this JSON.
+            request.send('x='+this.x 
+                         +'&y='+this.y
+                         +'&width='+this.width
+                         +'&height='+this.height
+                         +'&id='+this.parent.id);
+        }
     };
 
     // View Event handling
@@ -180,7 +196,7 @@ var ViewedImage = function(id) {
     this.getRois = function() {
         // TODO selectively get Rois
         var request = new XMLHttpRequest();
-        request.open('GET', '/image/'+this.id+'/getrois', false);
+        request.open('GET', '/image/'+this.id+'/rois', false);
         request.send();
         var rois = eval('('+request.responseText+')'); // Dangerous. 
         if(rois) {
