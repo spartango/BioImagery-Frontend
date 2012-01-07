@@ -2,8 +2,8 @@ TILE_WIDTH  = 400;
 TILE_LENGTH = 400;
 
 // Icon prep
-ICON_WIDTH  = 30;
-ICON_HEIGHT = 30;
+ICON_WIDTH  = 24;
+ICON_HEIGHT = 24;
 
 var removeIcon = new Image();
 removeIcon.src = '/images/icons/remove.png'
@@ -104,6 +104,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             target.id = request.responseText;
             target.saved = true;
             console.log('saved ROI '+target.id);
+            redraw();
         };
         // TODO should really make this JSON.
         request.send('x='+this.x 
@@ -117,8 +118,25 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.onSelect = function(xpos, ypos) {
         // Check for left corner
         // if unsaved, save
+        if(!this.saved 
+           && xpos >= -ICON_WIDTH / 2 
+           && xpos <= ICON_WIDTH / 2 
+           && ypos >= -ICON_HEIGHT / 2 
+           && ypos <= ICON_HEIGHT / 2) {
+            
+            this.save();
+        }
 
         // Check for right corner
+        if(xpos >= this.width - ICON_WIDTH / 2 
+           && xpos <= this.width + ICON_WIDTH / 2 
+           && ypos >= this.height - ICON_HEIGHT / 2 
+           && ypos <= this.height + ICON_HEIGHT / 2) {
+
+            console.log("Deleting "+this);
+            this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
+            // TODO actually delete from DB(?)
+        }
         // Delete
     };
 
@@ -126,6 +144,9 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         // If this is a resize, resize
 
         // If this is a move, mod coords
+        this.x += deltaX;
+        this.y += deltaY;
+        this.saved = false;
     };
 
 };
@@ -180,7 +201,15 @@ var ViewedImage = function(id) {
     };
 
     this.roiAt = function (xpos, ypos) {
-        // TODO check for ROIs at position
+        for(var i = 0; i < this.roiSet.length; i++) {
+            var t_roi = this.roiSet[i];
+            if(t_roi.x >= xpos 
+               && xpos < t_roi.x + t_roi.width
+               && t_roi.y >= ypos 
+               && ypos < t_roi.y + t_roi.height) {
+                   return t_roi;
+               }
+        }
         return null;
     }
 
@@ -331,6 +360,7 @@ function mouseDown(event) {
         selectedRoi = targetImage.roiAt(getRelativeX(event), 
                                         getRelativeY(event));
         if(selectedRoi){
+            console.log("Selected "+selectedRoi);
             // dispatch event with coords relative to it
             selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
                                  getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
@@ -370,12 +400,11 @@ function mouseMove(event) {
         } else if(viewportMode == VIEWPORT_DRAW && selectedRoi) {
             selectedRoi.width += deltaX;
             selectedRoi.height += deltaY;
-            redraw();
         }
 
         dragStartX = event.pageX;
-        dragStartY = event.pageY;
-
+        dragStartY = event.pageY;            
+        redraw();
     }
 }
 
