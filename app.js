@@ -66,13 +66,14 @@ app.post('/image/create',        imageroutes.createimage); // Creates an Image
 app.get('/image/:id',            imageroutes.image);       // Provides raw images
 app.get('/image/:id/describe',   imageroutes.imageinfo);   // Provides info about the image
 app.get('/image/:id/view',       imageroutes.imageview);   // Provides info about the image
-app.get('/image/:id/gettile',    imageroutes.tile);        // Provides tiles
-app.get('/image/:id/getrois',    imageroutes.rois);        // Provides ROIs
+app.get('/image/:id/tile',       imageroutes.tile);        // Provides tiles
+app.get('/image/:id/rois',       imageroutes.rois);        // Provides ROIs
 app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
 app.get('/tag',                  tagroutes.tags);          // Lists all Tags
 app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag
-app.post('/roi/create',          roiroutes.createroi);     // Creates a ROI
-app.post('/roi/:id/tagroi',      roiroutes.tagroi);        // Tags an ROI
+app.post('/roi/create',          roiroutes.createroi);
+app.post('/roi/:id/update',      roiroutes.updateroi);     // Creates a ROI
+app.post('/roi/:id/tag',         roiroutes.tagroi);        // Tags an ROI
 
 app.listen(8080);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

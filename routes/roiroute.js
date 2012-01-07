@@ -46,12 +46,58 @@ exports.createroi = function(req, res){
                 if(image) {
                     newRoi.setImage(image).on('success', function() {
                         // Send a 200OK and the new ID
-                        res.send(newRoi.id, 200);
+                        console.log('New ROI: '+newRoi.id);
+                        res.send(''+newRoi.id, 200);
                     });
                 } else {
                     res.send('No image', 404);
                 } 
             });
+        
+    } else {
+        // param Error Condition 
+        // Send a 400 back
+        res.send('Bad params', 400);
+    }
+
+};
+
+/*
+ * POST update an roi 
+ */
+
+exports.updateroi = function(req, res){
+    // Get the image ID
+    var roiId   = req.params.id;
+    var xOffset = req.body.x;
+    var yOffset = req.body.y;
+    var rWidth  = req.body.width;
+    var rLength = req.body.height;
+
+    // Ensure that all the right params are passed
+    if(    roiId  
+        && xOffset != null 
+        && yOffset != null
+        && rWidth  != null
+        && rLength != null) {
+            console.log("Updating ROI: "+roiId);
+            Roi.find(Number(roiId)).on('success', function(roi){
+               if(roi) {
+                   roi.x      = xOffset;
+                   roi.y      = yOffset;
+                   roi.width  = rWidth;
+                   roi.height = rLength;
+
+                   console.log(roi.toString());
+
+                   roi.save();
+                   res.send('', 200);
+               } else {
+                   res.send('No Such ROI', 404);
+               }
+
+            });
+           
         
     } else {
         // param Error Condition 
