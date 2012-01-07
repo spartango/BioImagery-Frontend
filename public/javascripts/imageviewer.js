@@ -43,6 +43,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.id         = id;
     this.confidence = confidence;
     this.parent     = parent;
+    this.saved      = false;
 
     this.render = function(context) {
         // Offset the coords by the parent offsets
@@ -53,11 +54,34 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             && yCoord + this.height >= 0
             && xCoord < context.canvas.width 
             && yCoord < context.canvas.height){
-            // Select a color
+            // TODO Select a color
             context.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+
             // Draw a box at the coords
             context.strokeRect(xCoord, yCoord, this.width, this.height);
+
+            // Draw the icon for handle
+            
+            // Draw the icon for delete
         }
+    };
+
+    this.save = function() {
+        var request = new XMLHttpRequest();
+        var target = this;
+
+        request.open('POST', '/roi/create', true);
+        request.onload = function() {
+            target.id = request.responseText;
+            target.saved = true;
+            console.log('saved ROI '+target.id);
+        };
+        // TODO should really make this JSON.
+        request.send('x='+this.x 
+                     +'&y='+this.y
+                     +'&width='+this.width
+                     +'&height='+this.height
+                     +'&id='+this.parent.id);
     }
 
 };
@@ -98,19 +122,17 @@ var ViewedImage = function(id) {
             // Build objects
             for(var i = 0; i<rois.length; i++) {
                 var t_roi = rois[i];
-                this.roiSet.push(new Roi(t_roi.x, 
+                var newRoi = new Roi(t_roi.x, 
                                     t_roi.y, 
                                     t_roi.width, 
                                     t_roi.height, 
                                     t_roi.confidence, 
                                     t_roi.id,
-                                    this));
+                                    this);
+                newRoi.saved = true;
+                this.roiSet.push(newRoi);
             }
         }
-    };
-
-    this.createRoi = function() {
-        // TODO
     };
 
     this.renderTiles = function(context) {
@@ -232,27 +254,35 @@ function keyMove(event) {
 }
 
 function mouseDown(event) {
+    // Check for buttons
+    if(false){
+        
+    } else {
+        // Starting a drag
+        viewportDragging = true;
+        dragStartX = event.pageX;
+        dragStartY = event.pageY;
+    }
+
     if(viewportMode == VIEWPORT_DRAW) {
         // TODO create a new ROI
-        var newRoi = new ROI(event.pageX - canvas.offsetLeft, 
-                             event.pageY - canvas.offsetTop, 0, 0, null, targetImage);
+        var newRoi = new Roi((event.pageX - viewportCanvas.offsetLeft) + targetImage.xOffset, 
+                             (event.pageY - viewportCanvas.offsetTop)  + targetImage.yOffset, 
+                             0, 0, 0, null, targetImage);
         targetImage.roiSet.push(newRoi);
         // Mark it selected
         selectedRoi = newRoi;
     } else if(viewportMode == VIEWPORT_PAN) {
         // TODO check for ROIs beneath
     }
-    viewportDragging = true;
-    dragStartX = event.pageX;
-    dragStartY = event.pageY;
+
 }
 
 function mouseUp (event) {
     viewportDragging = false;
 
-    // Commit any ROI changes
     if(selectedRoi) {
-        
+        selectedRoi = null;
     }
 }
 
@@ -264,20 +294,9 @@ function mouseMove(event) {
         if(viewportMode == VIEWPORT_PAN) {
             onViewportMoved(-deltaX, -deltaY);
         } else if(viewportMode == VIEWPORT_DRAW && selectedRoi) {
-            if(selectedRoi.width == 0 && deltaX < 0) {
-                // Roll the x coord back
-                selectedRoi.x += deltaX;
-            } else {
-                selectedRoi.width += deltaX;
-            }
-
-            if(selectedRoi.height == 0 && deltaY < 0) {
-                // Roll the y coord back
-                selectedRoi.y += deltaY;
-            } else {
-                selectedRoi.height += deltaY;
-            }
-            
+            selectedRoi.width += deltaX;
+            selectedRoi.height += deltaY;
+            redraw();
         }
 
         dragStartX = event.pageX;
