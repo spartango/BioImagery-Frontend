@@ -440,6 +440,7 @@ function mouseUp (event) {
         redraw();
     }
 
+    viewportMode = VIEWPORT_PAN;
     document.body.style.cursor = 'default';
 }
 
@@ -457,8 +458,12 @@ function mouseMove(event) {
         dragStartY = event.pageY;            
         redraw();
     }
+    event.preventDefault();
 }
 
+function penDown() {
+    viewportMode = VIEWPORT_DRAW;
+}
 
 // Setup Viewport canvas
 function initViewport() {
