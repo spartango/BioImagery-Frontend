@@ -46,7 +46,8 @@ exports.createroi = function(req, res){
                 if(image) {
                     newRoi.setImage(image).on('success', function() {
                         // Send a 200OK and the new ID
-                        res.send(newRoi.id, 200);
+                        console.log('New ROI: '+newRoi.id);
+                        res.send(''+newRoi.id, 200);
                     });
                 } else {
                     res.send('No image', 404);
