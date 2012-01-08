@@ -107,7 +107,9 @@ exports.updateroi = function(req, res){
 
 };
 
-exports.notifyRoiChange = function(newRoi) {
+exports.notifyRoiChange = function(clientId, newRoi) {
+    // Generate an event
+    // Send the event with SSE
     
 };
 

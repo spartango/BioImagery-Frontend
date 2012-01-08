@@ -8,11 +8,13 @@ ICON_HEIGHT = 22;
 var removeIcon = new Image();
 removeIcon.src = '/images/icons/remove.png'
 var handleIcon = new Image();
-handleIcon.src = '/images/icons/handle.png'
+handleIcon.src = '/images/icons/ghandle.png'
 var selectedHandleIcon = new Image();
-selectedHandleIcon.src = '/images/icons/ghandle.png'
+selectedHandleIcon.src = '/images/icons/handle.png'
 var saveIcon = new Image();
 saveIcon.src = '/images/icons/check.png'
+var tagIcon = new Image();
+tagIcon.src = '/images/icons/plus.png'
 
 var Tile = function(x, y, parent) {
     this.x        = x;
@@ -83,20 +85,19 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                                 yCoord - ICON_HEIGHT / 2, 
                                 ICON_WIDTH, ICON_HEIGHT);
 
-            if(this.resizing)
-                context.drawImage(selectedHandleIcon,
-                                    xCoord - ICON_WIDTH / 2 + this.width, 
-                                    yCoord - ICON_HEIGHT / 2 + this.height, 
-                                    ICON_WIDTH, ICON_HEIGHT);
+            //if(this.resizing)
+                context.drawImage(handleIcon,
+                                xCoord - ICON_WIDTH / 2 + this.width, 
+                                yCoord - ICON_HEIGHT / 2 + this.height, 
+                                ICON_WIDTH, ICON_HEIGHT);
             
 
-            if(!this.id) {
-                // Draw the icon for delete
-                context.drawImage(removeIcon, 
-                                      xCoord - ICON_WIDTH / 2 + this.width, 
-                                      yCoord - ICON_HEIGHT / 2, 
-                                      ICON_WIDTH, ICON_HEIGHT);
-            }
+            // Draw the icon for delete
+            context.drawImage((this.id? tagIcon : removeIcon), 
+                                  xCoord - ICON_WIDTH / 2 + this.width, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
+         
         }
     };
 
@@ -156,13 +157,18 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         }
 
         // Check for upper right corner
-        else if(!this.id 
-           && xpos >= this.width - ICON_WIDTH / 2 
-           && xpos <= this.width + ICON_WIDTH / 2 
-           && ypos >= -ICON_HEIGHT / 2 
-           && ypos <= ICON_HEIGHT / 2) {
+        else if(xpos >= this.width - ICON_WIDTH / 2 
+             && xpos <= this.width + ICON_WIDTH / 2 
+             && ypos >= -ICON_HEIGHT / 2 
+             && ypos <= ICON_HEIGHT / 2) {
 
-            this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
+            if(!this.id) {
+                // Delete
+                this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
+            } else {
+                //Tag
+
+            }
             return false;
         } 
         // Lower right corner
@@ -174,8 +180,10 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             // resizing mode
             this.resizing = true;
             return true;
+
         } else {
             this.resizing = false;
+            // Move mode
             return (xpos >= -ICON_WIDTH
                  && xpos <= ICON_WIDTH
                  && ypos >= -ICON_HEIGHT 
@@ -316,7 +324,7 @@ function refreshTiles() {
                     // Create a new tile
                     var floorTileX = Math.floor(tileX / TILE_WIDTH) * TILE_WIDTH;
                     var floorTileY = Math.floor(tileY / TILE_LENGTH) * TILE_LENGTH;
-                    
+
                     targetTile = new Tile(floorTileX, floorTileY, targetImage);
                     targetTile.getImage();
                 }
@@ -430,7 +438,7 @@ function mouseDown(event) {
     event.preventDefault();
 }
 
-function mouseUp (event) {
+function mouseUp(event) {
     viewportDragging = false;
 
     if(selectedRoi) {

@@ -8,13 +8,11 @@ html
     script(src='/javascripts/imageviewer.js')
 
     body(onload='init('+imageId+')')
-        h1= imageName
-
         #description.textbox
             p= imageDescription
 
         #viewer.viewbox
-            | <canvas id="viewport" width=1000 height=600> 
+            | <canvas id="viewport" width=800 height=600> 
             | </canvas>
         #controls.controlbox
             | <button onclick=penDown()>+</button>
