@@ -86,7 +86,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                                 ICON_WIDTH, ICON_HEIGHT);
 
             //if(this.resizing)
-                context.drawImage(handleIcon,
+            context.drawImage(handleIcon,
                                 xCoord - ICON_WIDTH / 2 + this.width, 
                                 yCoord - ICON_HEIGHT / 2 + this.height, 
                                 ICON_WIDTH, ICON_HEIGHT);
@@ -193,8 +193,6 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     };
 
     this.onDrag = function(deltaX, deltaY) {
-        // If this is a resize, resize
-
         // If this is a move, mod coords
         if(!this.resizing) {
             this.x += deltaX;
@@ -447,8 +445,7 @@ function mouseUp(event) {
         selectedRoi           = null;
         redraw();
     }
-
-    viewportMode = VIEWPORT_PAN;
+    penUp();
     document.body.style.cursor = 'default';
 }
 
@@ -469,9 +466,23 @@ function mouseMove(event) {
     event.preventDefault();
 }
 
-function penDown() {
-    viewportMode = VIEWPORT_DRAW;
+
+function penUp() {
+    if(viewportMode == VIEWPORT_DRAW) {
+        viewportMode = VIEWPORT_PAN;
+        document.getElementById("plusbutton").className = 'btn primary';
+    }
 }
+
+function penDown() {
+    if(viewportMode == VIEWPORT_PAN) {
+        viewportMode = VIEWPORT_DRAW;
+        document.getElementById("plusbutton").className = 'btn danger';
+    } else {
+        penUp();
+    }
+}
+
 
 // Setup Viewport canvas
 function initViewport() {
