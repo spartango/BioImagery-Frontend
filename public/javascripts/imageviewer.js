@@ -28,7 +28,6 @@ var Tile = function(x, y, parent) {
         newImage.onload = function() {
             // Mark this image as ready
             target.image = newImage;
-            console.log("Got Tile for "+target.x +" "+target.y);
             redraw();
         };
         newImage.src = '/image/'+this.parent.id+'/tile?x='+this.x+'&y='+this.y;
@@ -136,7 +135,6 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             request.onload = function() {
                 target.id = request.responseText;
                 target.saved = true;
-                console.log('saved ROI '+target.id);
                 redraw();
             };
 
@@ -164,15 +162,14 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
            && ypos >= -ICON_HEIGHT / 2 
            && ypos <= ICON_HEIGHT / 2) {
 
-            console.log("Deleting "+this);
             this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
             return false;
         } 
         // Lower right corner
         else if(xpos >= this.width - ICON_WIDTH  
-           && xpos <= this.width + ICON_WIDTH 
-           && ypos >= this.height - ICON_HEIGHT 
-           && ypos <= this.height + ICON_HEIGHT) {
+             && xpos <= this.width + ICON_WIDTH 
+             && ypos >= this.height - ICON_HEIGHT 
+             && ypos <= this.height + ICON_HEIGHT) {
 
             // resizing mode
             this.resizing = true;
@@ -180,9 +177,9 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         } else {
             this.resizing = false;
             return (xpos >= -ICON_WIDTH
-                  && xpos <= ICON_WIDTH
-                  && ypos >= -ICON_HEIGHT 
-                  && ypos <= ICON_HEIGHT); 
+                 && xpos <= ICON_WIDTH
+                 && ypos >= -ICON_HEIGHT 
+                 && ypos <= ICON_HEIGHT); 
         }
         
     };
@@ -221,10 +218,9 @@ var ViewedImage = function(id) {
         request.send();
         var imageInfo = eval('('+request.responseText+')'); // Dangerous. 
         if(imageInfo) {
-            this.width = imageInfo.width;
+            this.width  = imageInfo.width;
             this.height = imageInfo.height;
-            this.name = imageInfo.filename;
-            console.log("Got info for "+this.name)
+            this.name   = imageInfo.filename;
         }
 
     };
@@ -320,6 +316,7 @@ function refreshTiles() {
                     // Create a new tile
                     var floorTileX = Math.floor(tileX / TILE_WIDTH) * TILE_WIDTH;
                     var floorTileY = Math.floor(tileY / TILE_LENGTH) * TILE_LENGTH;
+                    
                     targetTile = new Tile(floorTileX, floorTileY, targetImage);
                     targetTile.getImage();
                 }

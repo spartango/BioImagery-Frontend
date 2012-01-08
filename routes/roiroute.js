@@ -107,6 +107,10 @@ exports.updateroi = function(req, res){
 
 };
 
+exports.notifyRoiChange = function(newRoi) {
+    
+};
+
 exports.tagroi = function(req, res) {
     // Get the ROI param id
     var roiId = req.params.id;
