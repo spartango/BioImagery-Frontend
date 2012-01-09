@@ -558,7 +558,7 @@ function mouseDown(event) {
                                                     getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
             redraw();
         } 
-        
+
         if(viewportDragging) {
             dragStartX = event.clientX;
             dragStartY = event.clientY;
@@ -612,12 +612,14 @@ function penDown() {
 }
 
 function showInfo(targetRoi) {
+    if(targetRoi.id) {
     // Check that we've got the tags
-    if(!targetRoi.tagSet)
-        targetRoi.getTags();
+        if(!targetRoi.tagSet)
+            targetRoi.getTags();
 
-    // Prep the view
-    renderRoiInfo(targetRoi);
+        // Prep the view
+        renderRoiInfo(targetRoi);
+    }
 
 }
 
