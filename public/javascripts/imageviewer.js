@@ -97,10 +97,12 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         request.open('POST', '/roi/'+this.id+'/tag', true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         var target = this;
-        request.onload = function() {
-            console.log('Applied Tag');
-            target.tagSet.push(tagId);
-            showInfo(target);
+        request.onreadystatechange = function() {
+            if(request.readyState == 4) {
+                console.log('Applied Tag to'+target.id);
+                target.tagSet.push(tagId);
+                showInfo(target);
+            }
         };
 
         request.send(params);
@@ -120,10 +122,12 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             request.open('POST', '/roi/'+this.id+'/update', true);
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             
-            request.onload = function() {
-                target.saved = true;
-                console.log('updated ROI '+target.id);
-                redraw();
+            request.onreadystatechange = function() {
+                if(request.readyState == 4) {
+                    target.saved = true;
+                    console.log('updated ROI '+target.id);
+                    redraw();
+                }
             };
 
             request.send(params);
@@ -138,10 +142,12 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             request.open('POST', '/roi/create', true);
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             
-            request.onload = function() {
-                target.id = request.responseText;
-                target.saved = true;
-                redraw();
+            request.onreadystatechange = function() {
+                if(readyState == 4) {
+                    target.id = request.responseText;
+                    target.saved = true;
+                    redraw();
+                }
             };
 
             request.send(params);
@@ -164,8 +170,9 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             context.strokeRect(xCoord, yCoord, this.width, this.height);
 
             // Draw the icon for handle
-            context.drawImage((this.highlight? selectedHandleIcon :
-                                        (!this.saved ? saveIcon : handleIcon)),
+            context.drawImage((!this.saved ? saveIcon :
+                                        (this.highlight ? selectedHandleIcon 
+                                            : handleIcon)),
                                 xCoord - ICON_WIDTH / 2, 
                                 yCoord - ICON_HEIGHT / 2, 
                                 ICON_WIDTH, ICON_HEIGHT);
@@ -305,9 +312,11 @@ var ViewedImage = function(id) {
         request.open('GET', '/tag', true);
         request.send();
         var target = this;
-        request.onload = function() {
-            target.tagMap = eval('('+request.responseText+')'); 
-            console.log("Got tags "+target.tagMap.length);
+        request.onreadystatechange = function() {
+            if(request.readyState == 4) {
+                target.tagMap = eval('('+request.responseText+')'); 
+                console.log("Got tags "+target.tagMap.length);
+            }
         };
     }
 
@@ -440,10 +449,12 @@ function renderRoiInfo(targetRoi) {
         // Get the tag name
         // Create a label
         var label = document.createElement('span');
-        label.setAttribute('class', 'label new');
+        label.setAttribute('class', 'label success');
         label.innerHTML = targetImage.nameForTag(tagId);
+        var brk = document.createElement('br');
         // Append it
-        taglist.appendChild(label)
+        taglist.appendChild(label);
+        taglist.appendChild(brk);
     });
     // Append tags to the view
 
@@ -595,7 +606,8 @@ function penDown() {
 
 function showInfo(targetRoi) {
     // Check that we've got the tags
-    targetRoi.getTags();
+    if(!targetRoi.tagSet)
+        targetRoi.getTags();
 
     // Prep the view
     renderRoiInfo(targetRoi);
