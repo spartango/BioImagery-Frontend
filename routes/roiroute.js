@@ -121,15 +121,19 @@ exports.tagroi = function(req, res) {
     var tagId = req.body.tag;
     if(roiId && tagId) {
             // Look up the ROI
+            console.log('Tagging ROI');
             Roi.find(Number(roiId)).on('success', function(roi) {
                if(roi) {
                     // Look up the tag
                     Tag.find(Number(tagId)).on('success', function(tag) {
                         if(tag) {
                             roi.addTag(tag);
+                            res.send('', 200);
                         }
                     });
-               }  
+                } else {
+                    res.send('No Such ROI', 404);
+                }
             });
    
     }

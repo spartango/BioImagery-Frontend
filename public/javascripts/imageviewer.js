@@ -143,7 +143,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             
             request.onreadystatechange = function() {
-                if(readyState == 4) {
+                if(request.readyState == 4) {
                     target.id = request.responseText;
                     target.saved = true;
                     redraw();
