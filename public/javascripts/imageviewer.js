@@ -460,6 +460,12 @@ function keyMove(event) {
 }
 
 function mouseDown(event) {
+    if(selectedRoi) {
+        selectedRoi.resizing  = false;
+        selectedRoi.highlight = false;
+        selectedRoi           = null;
+    }
+    
     if(viewportMode == VIEWPORT_DRAW) {
         var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
                              getRelativeY(event) + targetImage.yOffset, 
@@ -500,13 +506,6 @@ function mouseDown(event) {
 
 function mouseUp(event) {
     viewportDragging = false;
-
-    if(selectedRoi) {
-        selectedRoi.resizing  = false;
-        selectedRoi.highlight = false;
-        selectedRoi           = null;
-        redraw();
-    }
     penUp();
     document.body.style.cursor = 'default';
 }
