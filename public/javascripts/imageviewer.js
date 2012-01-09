@@ -8,7 +8,7 @@ ICON_HEIGHT = 22;
 var removeIcon = new Image();
 removeIcon.src = '/images/icons/remove.png'
 var handleIcon = new Image();
-handleIcon.src = '/images/icons/ghandle.png'
+handleIcon.src = '/images/icons/plus.png'
 var selectedHandleIcon = new Image();
 selectedHandleIcon.src = '/images/icons/handle.png'
 var saveIcon = new Image();
@@ -178,14 +178,14 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                                 ICON_WIDTH, ICON_HEIGHT);
 
             if(this.highlight){
-                context.drawImage(handleIcon,
+                context.drawImage(selectedHandleIcon,
                                     xCoord - ICON_WIDTH / 2 + this.width, 
                                     yCoord - ICON_HEIGHT / 2 + this.height, 
                                     ICON_WIDTH, ICON_HEIGHT);
-                
-
+            }
+            if(!this.id) {
                 // Draw the icon for delete
-                context.drawImage((this.id? tagIcon : removeIcon), 
+                context.drawImage(removeIcon, 
                                       xCoord - ICON_WIDTH / 2 + this.width, 
                                       yCoord - ICON_HEIGHT / 2, 
                                       ICON_WIDTH, ICON_HEIGHT);
@@ -216,10 +216,10 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             if(!this.id) {
                 // Delete
                 this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
-            } else {
+            } /*else {
                 //Tag
                 showInfo(this);
-            }
+            } */
             return false;
         } 
         // Lower right corner
@@ -519,12 +519,7 @@ function keyMove(event) {
 }
 
 function mouseDown(event) {
-    if(selectedRoi) {
-        hideRoiInfo();
-        selectedRoi.resizing  = false;
-        selectedRoi.highlight = false;
-        selectedRoi           = null;
-    }
+    var prevRoi = selectedRoi;
 
     if(viewportMode == VIEWPORT_DRAW) {
         var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
@@ -546,13 +541,24 @@ function mouseDown(event) {
         selectedRoi = targetImage.roiAt(getRelativeX(event), 
                                         getRelativeY(event));
         viewportDragging = true;
+
+        if(prevRoi && selectedRoi != prevRoi) {
+            hideRoiInfo();
+            prevRoi.resizing  = false;
+            prevRoi.highlight = false;
+            prevRoi           = null;
+        } 
+
         if(selectedRoi){
             selectedRoi.highlight = true;
+            showInfo(selectedRoi);
+
             // dispatch event with coords relative to it
             viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
                                                     getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
             redraw();
         } 
+        
         if(viewportDragging) {
             dragStartX = event.clientX;
             dragStartY = event.clientY;

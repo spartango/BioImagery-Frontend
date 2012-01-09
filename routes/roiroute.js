@@ -129,6 +129,8 @@ exports.tagroi = function(req, res) {
                         if(tag) {
                             roi.addTag(tag);
                             res.send('', 200);
+                        } else {
+                            res.send('No such tag', 404);
                         }
                     });
                 } else {
