@@ -177,18 +177,19 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                                 yCoord - ICON_HEIGHT / 2, 
                                 ICON_WIDTH, ICON_HEIGHT);
 
-            //if(this.resizing)
-            context.drawImage(handleIcon,
-                                xCoord - ICON_WIDTH / 2 + this.width, 
-                                yCoord - ICON_HEIGHT / 2 + this.height, 
-                                ICON_WIDTH, ICON_HEIGHT);
-            
+            if(this.highlight){
+                context.drawImage(handleIcon,
+                                    xCoord - ICON_WIDTH / 2 + this.width, 
+                                    yCoord - ICON_HEIGHT / 2 + this.height, 
+                                    ICON_WIDTH, ICON_HEIGHT);
+                
 
-            // Draw the icon for delete
-            context.drawImage((this.id? tagIcon : removeIcon), 
-                                  xCoord - ICON_WIDTH / 2 + this.width, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
+                // Draw the icon for delete
+                context.drawImage((this.id? tagIcon : removeIcon), 
+                                      xCoord - ICON_WIDTH / 2 + this.width, 
+                                      yCoord - ICON_HEIGHT / 2, 
+                                      ICON_WIDTH, ICON_HEIGHT);
+            }
          
         }
     };
