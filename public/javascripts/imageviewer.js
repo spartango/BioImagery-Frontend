@@ -73,6 +73,38 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         this.tagSet = eval('('+request.responseText+')'); 
         console.log("Got ROI tags "+this.tagSet.length);
     };
+
+    this.applyTag = function(tagName) {
+        // Check if tag exists 
+        var tagId = targetImage.idForTag(tagName);
+        if(!tagId) {
+            var createRequest = new XMLHttpRequest();
+            var params = 'name='+tagName;
+            
+            request.open('POST', '/tag/create', false);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            request.send(params);
+            tagId = request.responseText;
+            this.parent.tagMap.push({name: tagName, 
+                                     id: tagId});
+            console.log('created new tag '+tagId);
+        }
+
+        var params = 'tag='+tagId;
+
+        // POST /roi/:id/tag with tag=tagId
+        var request = new XMLHttpRequest();
+        request.open('POST', '/roi/'+this.id+'/tag', true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        var target = this;
+        request.onload = function() {
+            console.log('Applied Tag');
+            target.tagSet.push(tagId);
+            showInfo(target);
+        };
+
+        request.send(params);
+    }
     
     this.save = function() {
         var request = new XMLHttpRequest();
@@ -307,6 +339,15 @@ var ViewedImage = function(id) {
         return null;
     }
 
+    this.idForTag = function(tagname) {
+        for (var i = this.tagMap.length - 1; i >= 0; i--) {
+            if(this.tagMap[i].name == tagname) {
+                return this.tagMap[i].id;
+            }
+        }
+        return null;
+    }
+
     this.tileAt = function(x, y) {
         for(var i = 0; i < this.tileSet.length; i++) {
             if(this.tileSet[i].x <= x && x < this.tileSet[i].x + TILE_WIDTH
@@ -393,12 +434,14 @@ function redraw() {
 
 function renderRoiInfo(targetRoi) {
     var taglist = document.getElementById('taglist');
+    // Clear any children
+    $(taglist).empty();
     targetRoi.tagSet.map(function(tagId) {
         // Get the tag name
         // Create a label
         var label = document.createElement('span');
-        label.setAttribute('class', 'label');
-        label.innerHTML(targetImage.nameForTag(tagId));
+        label.setAttribute('class', 'label new');
+        label.innerHTML = targetImage.nameForTag(tagId);
         // Append it
         taglist.appendChild(label)
     });
@@ -406,6 +449,10 @@ function renderRoiInfo(targetRoi) {
 
     // Show the view
     $(selectedRoiInfo).show('normal');
+}
+
+function hideRoiInfo(){
+    $(selectedRoiInfo).hide('normal');
 }
 
 function onViewportMoved(deltaX, deltaY) {
@@ -461,11 +508,12 @@ function keyMove(event) {
 
 function mouseDown(event) {
     if(selectedRoi) {
+        hideRoiInfo();
         selectedRoi.resizing  = false;
         selectedRoi.highlight = false;
         selectedRoi           = null;
     }
-    
+
     if(viewportMode == VIEWPORT_DRAW) {
         var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
                              getRelativeY(event) + targetImage.yOffset, 
@@ -555,10 +603,10 @@ function showInfo(targetRoi) {
 }
 
 function addTag() {
-    // TODO add tag from input box
-    // Check if tag exists 
-    //    if Not, XHR create it
+    var tagName = newTagName.value;
+
     // Apply tag to selected
+    selectedRoi.applyTag(tagName);
 }
 
 // Setup Viewport canvas

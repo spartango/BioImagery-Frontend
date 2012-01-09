@@ -120,10 +120,10 @@ exports.tagroi = function(req, res) {
     var tagId = req.body.tag;
     if(roiId && tagId) {
             // Look up the ROI
-            Roi.find(roiId).on('success', function(roi) {
+            Roi.find(Number(roiId)).on('success', function(roi) {
                if(roi) {
                     // Look up the tag
-                    Tag.find(tagId).on('success', function(tag) {
+                    Tag.find(Number(tagId)).on('success', function(tag) {
                         if(tag) {
                             roi.addTag(tag);
                         }

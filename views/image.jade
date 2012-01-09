@@ -29,9 +29,10 @@ html
                         h6
                             small Tags
                         #taglist
+                        br
                         #newtag.row
                             input(id='newTagName').span3
-                            button(id='tagAddButton', onclick='addTag').btn.primary.span1 +
+                            button(id='tagAddButton', onclick='addTag()').btn.primary.span1 +
                     hr
                 #tools
                     button(id='roiAddButton', onclick='penDown()').btn.primary New ROI
