@@ -18,15 +18,21 @@ html
                 | <canvas id="viewport" width=800 height=600> 
                 | </canvas>
             #controls.sidebar
-                h6 Description
                 #description
+                    h6 Description
                     p= imageDescription
-                #tags
-                    h6 Tags
-                    button(id='tagAddButton', ).btn.primary Add
-
-                    #taglist
-                #rois
-                    h6 ROIs
-                    button(id='roiAddButton', onclick='penDown()').btn.primary Add
+                hr
+                #selectedRoiInfo
+                    h6 Selected ROI
+                    #info
+                    #tags
+                        h6
+                            small Tags
+                        #taglist
+                        #newtag.row
+                            input(id='newTagName').span3
+                            button(id='tagAddButton', onclick='addTag').btn.primary.span1 +
+                    hr
+                #tools
+                    button(id='roiAddButton', onclick='penDown()').btn.primary New ROI
 

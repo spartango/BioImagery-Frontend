@@ -466,6 +466,7 @@ function mouseMove(event) {
     event.preventDefault();
 }
 
+// Button controls
 
 function penUp() {
     if(viewportMode == VIEWPORT_DRAW) {
@@ -484,6 +485,9 @@ function penDown() {
     }
 }
 
+function addTag() {
+    // TODO add tag from input box
+}
 
 // Setup Viewport canvas
 function initViewport() {
@@ -494,7 +498,7 @@ function initViewport() {
     if(viewportCanvas && viewportCanvas.getContext) {
         window.viewportContext = viewportCanvas.getContext('2d');
         // Register Events
-        window.addEventListener('keydown', keyMove);
+        viewportCanvas.addEventListener('keydown', keyMove);
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
