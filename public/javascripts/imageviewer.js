@@ -375,11 +375,11 @@ selectedRoi = null;
 
 // Event Utils
 function getRelativeX(event) {
-    return (event.pageX - viewportCanvas.offsetLeft);
+    return (event.clientX - $(viewportCanvas).offset().left);
 }
 
 function getRelativeY(event) {
-    return (event.pageY - viewportCanvas.offsetTop);
+    return (event.clientY - $(viewportCanvas).offset().top);
 }
 
 function keyMove(event) {
@@ -411,8 +411,8 @@ function mouseDown(event) {
         
         // Starting a drag
         viewportDragging = true;
-        dragStartX = event.pageX;
-        dragStartY = event.pageY;
+        dragStartX = event.clientX;
+        dragStartY = event.clientY;
         document.body.style.cursor = 'crosshair';
     } else if(viewportMode == VIEWPORT_PAN) {
         selectedRoi = targetImage.roiAt(getRelativeX(event), 
@@ -426,8 +426,8 @@ function mouseDown(event) {
             redraw();
         } 
         if(viewportDragging) {
-            dragStartX = event.pageX;
-            dragStartY = event.pageY;
+            dragStartX = event.clientX;
+            dragStartY = event.clientY;
             document.body.style.cursor = 'all-scroll';
         }
     }
@@ -451,16 +451,16 @@ function mouseUp(event) {
 
 function mouseMove(event) {
     if(viewportDragging) {
-        var deltaX = event.pageX - dragStartX;
-        var deltaY = event.pageY - dragStartY;
+        var deltaX = event.clientX - dragStartX;
+        var deltaY = event.clientY - dragStartY;
         if(selectedRoi) {
             selectedRoi.onDrag(deltaX, deltaY);
         } else {
             onViewportMoved(-deltaX, -deltaY);
         }
 
-        dragStartX = event.pageX;
-        dragStartY = event.pageY;            
+        dragStartX = event.clientX;
+        dragStartY = event.clientY;            
         redraw();
     }
     event.preventDefault();
@@ -470,15 +470,16 @@ function mouseMove(event) {
 function penUp() {
     if(viewportMode == VIEWPORT_DRAW) {
         viewportMode = VIEWPORT_PAN;
-        document.getElementById("plusbutton").className = 'btn primary';
+        document.getElementById("roiAddButton").classList.remove('danger');
+        document.getElementById("roiAddButton").classList.add('primary');
     }
 }
 
 function penDown() {
     if(viewportMode == VIEWPORT_PAN) {
         viewportMode = VIEWPORT_DRAW;
-        document.getElementById("plusbutton").className = 'btn danger';
-    } else {
+        document.getElementById("roiAddButton").classList.remove('primary');
+        document.getElementById("roiAddButton").classList.add('danger');    } else {
         penUp();
     }
 }
