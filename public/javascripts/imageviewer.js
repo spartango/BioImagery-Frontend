@@ -81,10 +81,10 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             var createRequest = new XMLHttpRequest();
             var params = 'name='+tagName;
             
-            request.open('POST', '/tag/create', false);
-            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            request.send(params);
-            tagId = request.responseText;
+            createRequest.open('POST', '/tag/create', false);
+            createRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            createRequest.send(params);
+            tagId = createRequest.responseText;
             this.parent.tagMap.push({name: tagName, 
                                      id: tagId});
             console.log('created new tag '+tagId);
