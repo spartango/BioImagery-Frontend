@@ -185,11 +185,15 @@ exports.imageview = function(req, res) {
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
-                res.render('image', {
-                    title: 'Image', 
-                    imageId: imageId, 
-                    imageName: image.filename,
-                    imageDescription: image.description
+                // Get the imagecount
+                Image.count().on('success', function(count) {
+                    res.render('image', {
+                        title: 'Image', 
+                        imageId: imageId, 
+                        imageName: image.filename,
+                        imageDescription: image.description,
+                        imageCount: count
+                    });
                 });
             } else {
                 // Error condition

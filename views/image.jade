@@ -36,4 +36,21 @@ html
                     hr
                 #tools
                     button(id='roiAddButton', onclick='penDown()').btn.primary New ROI
+                #nav.pagination.footer
+                    ul
+                        - if(imageId == 1)
+                            li.prev.disabled
+                                a(href='#') &larr; Previous
+                        - else 
+                            li.prev
+                                a(href='/image/'+(imageId-1)+'/view') &larr; Previous
+                        
+                        li.active
+                            a(href='/image/'+imageId+'/view')=imageId
 
+                        - if(imageId >= imageCount)
+                            li.next.disabled
+                                a(href='#') &rarr; Next
+                        - else 
+                            li.next
+                                a(href='/image/'+(Number(imageId)+1) +'/view') &rarr; Next
