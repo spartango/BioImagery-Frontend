@@ -9,7 +9,7 @@ var Tag   = db.import(__dirname +'/../models/tag');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+//Roi.belongsTo(Image); 
 Roi.hasMany(Tag);
 
 exports.tags = function(req, res) {
@@ -53,7 +53,8 @@ exports.createtag = function(req, res) {
 
         // Send back the id
         newTag.save().on('success', function(){
-            res.send(newTag.id, 200);
+            console.log('Created tag '+newTag.id);
+            res.send(''+newTag.id, 200);
         });
 
     } else{

@@ -9,7 +9,7 @@ var Tag   = db.import(__dirname +'/../models/tag');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+//Roi.belongsTo(Image); 
 Roi.hasMany(Tag);
 
 /*
