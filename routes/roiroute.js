@@ -124,7 +124,9 @@ exports.tagroi = function(req, res) {
                if(roi) {
                     // Look up the tag
                     Tag.find(tagId).on('success', function(tag) {
-                        // TODO apply tag
+                        if(tag) {
+                            roi.addTag(tag);
+                        }
                     });
                }  
             });
@@ -132,4 +134,25 @@ exports.tagroi = function(req, res) {
     }
     // Create association between ROI and tag
 };
+
+exports.gettags = function(req, res){
+    var roiId = req.params.id;
+    if(roiId) {
+            // Look up the ROI
+            Roi.find(Number(roiId)).on('success', function(roi) {
+               if(roi) {
+                    // Get all the tags
+                    roi.getTags().on('success', function(tags){
+                        var json = JSON.stringify(tags.map(function(tag){
+                            return tag.id;
+                        }));
+                        // Generate a listing of them
+                        // Send it along
+                        res.send(json, 200);
+                    });
+               }  
+            });
+   
+    }
+}
 

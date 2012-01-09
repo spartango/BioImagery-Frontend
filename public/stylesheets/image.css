@@ -5,3 +5,7 @@ canvas {
 div.titlebar {
 	padding-left:15px;
 }
+
+div.selectDependent {
+	display: none;
+}

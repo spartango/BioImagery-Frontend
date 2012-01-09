@@ -71,8 +71,9 @@ app.get('/image/:id/rois',       imageroutes.rois);        // Provides ROIs
 app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
 app.get('/tag',                  tagroutes.tags);          // Lists all Tags
 app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag
-app.post('/roi/create',          roiroutes.createroi);
+app.post('/roi/create',          roiroutes.createroi);     // Creates an ROI
 app.post('/roi/:id/update',      roiroutes.updateroi);     // Creates a ROI
+app.get('/roi/:id/tags',         roiroutes.gettags);       // Get the tags associated with an ROI
 app.post('/roi/:id/tag',         roiroutes.tagroi);        // Tags an ROI
 
 app.listen(8080);

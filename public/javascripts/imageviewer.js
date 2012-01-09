@@ -59,48 +59,21 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.confidence = confidence;
     this.parent     = parent;
 
+    this.tagSet     = null;
+
     this.saved      = false;
     this.highlight  = false;
     this.resizing   = false;
 
-    this.render = function(context) {
-        // Offset the coords by the parent offsets
-        var xCoord = this.x - parent.xOffset;
-        var yCoord = this.y - parent.yOffset;
-        // Check that we should render
-        if(xCoord + this.width >= 0 
-            && yCoord + this.height >= 0
-            && xCoord < context.canvas.width 
-            && yCoord < context.canvas.height){
-            // TODO Select a color
-            context.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+    this.getTags = function() {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/roi/'+this.id+'/tags', false);
+        request.send();
 
-            // Draw a box at the coords
-            context.strokeRect(xCoord, yCoord, this.width, this.height);
-
-            // Draw the icon for handle
-            context.drawImage((this.highlight? selectedHandleIcon :
-                                        (!this.saved ? saveIcon : handleIcon)),
-                                xCoord - ICON_WIDTH / 2, 
-                                yCoord - ICON_HEIGHT / 2, 
-                                ICON_WIDTH, ICON_HEIGHT);
-
-            //if(this.resizing)
-            context.drawImage(handleIcon,
-                                xCoord - ICON_WIDTH / 2 + this.width, 
-                                yCoord - ICON_HEIGHT / 2 + this.height, 
-                                ICON_WIDTH, ICON_HEIGHT);
-            
-
-            // Draw the icon for delete
-            context.drawImage((this.id? tagIcon : removeIcon), 
-                                  xCoord - ICON_WIDTH / 2 + this.width, 
-                                  yCoord - ICON_HEIGHT / 2, 
-                                  ICON_WIDTH, ICON_HEIGHT);
-         
-        }
+        this.tagSet = eval('('+request.responseText+')'); 
+        console.log("Got ROI tags "+this.tagSet.length);
     };
-
+    
     this.save = function() {
         var request = new XMLHttpRequest();
 
@@ -143,6 +116,44 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         }
     };
 
+    this.render = function(context) {
+        // Offset the coords by the parent offsets
+        var xCoord = this.x - parent.xOffset;
+        var yCoord = this.y - parent.yOffset;
+        // Check that we should render
+        if(xCoord + this.width >= 0 
+            && yCoord + this.height >= 0
+            && xCoord < context.canvas.width 
+            && yCoord < context.canvas.height){
+            // TODO Select a color
+            context.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+
+            // Draw a box at the coords
+            context.strokeRect(xCoord, yCoord, this.width, this.height);
+
+            // Draw the icon for handle
+            context.drawImage((this.highlight? selectedHandleIcon :
+                                        (!this.saved ? saveIcon : handleIcon)),
+                                xCoord - ICON_WIDTH / 2, 
+                                yCoord - ICON_HEIGHT / 2, 
+                                ICON_WIDTH, ICON_HEIGHT);
+
+            //if(this.resizing)
+            context.drawImage(handleIcon,
+                                xCoord - ICON_WIDTH / 2 + this.width, 
+                                yCoord - ICON_HEIGHT / 2 + this.height, 
+                                ICON_WIDTH, ICON_HEIGHT);
+            
+
+            // Draw the icon for delete
+            context.drawImage((this.id? tagIcon : removeIcon), 
+                                  xCoord - ICON_WIDTH / 2 + this.width, 
+                                  yCoord - ICON_HEIGHT / 2, 
+                                  ICON_WIDTH, ICON_HEIGHT);
+         
+        }
+    };
+
     // View Event handling
     this.onSelect = function(xpos, ypos) {
         // Check for left corner
@@ -167,7 +178,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
                 this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
             } else {
                 //Tag
-
+                showInfo(this);
             }
             return false;
         } 
@@ -214,8 +225,10 @@ var ViewedImage = function(id) {
     this.height  = 0;
     this.name    = '';
     this.id      = id;
+
     this.tileSet = [];
     this.roiSet  = [];
+    this.tagMap  = [];
 
     this.getInfo = function() {
         // Get information from the name
@@ -251,23 +264,19 @@ var ViewedImage = function(id) {
                 newRoi.saved = true;
                 this.roiSet.push(newRoi);
             }
-        }
+            console.log("Got ROIs "+this.roiSet.length);
+        } 
     };
 
-    this.roiAt = function (xpos, ypos) {
-        for(var i = 0; i < this.roiSet.length; i++) {
-            var t_roi = this.roiSet[i];
-            if(((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
-               && ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 - this.yOffset) 
-                    || (ypos >= t_roi.y + t_roi.height - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + t_roi.height + ICON_HEIGHT/2 - this.yOffset)))
-               ||
-               ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 + t_roi.height - this.yOffset)
-               && ((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 - this.xOffset) 
-                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset)))) {
-                   return t_roi;
-               }
-        }
-        return null;
+    this.getTags = function() {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/tag', true);
+        request.send();
+        var target = this;
+        request.onload = function() {
+            target.tagMap = eval('('+request.responseText+')'); 
+            console.log("Got tags "+target.tagMap.length);
+        };
     }
 
     this.renderTiles = function(context) {
@@ -289,6 +298,15 @@ var ViewedImage = function(id) {
         this.renderRois(context);
     };
 
+    this.nameForTag = function(tagId) {
+        for (var i = this.tagMap.length - 1; i >= 0; i--) {
+            if(this.tagMap[i].id == tagId) {
+                return this.tagMap[i].name;
+            }
+        }
+        return null;
+    }
+
     this.tileAt = function(x, y) {
         for(var i = 0; i < this.tileSet.length; i++) {
             if(this.tileSet[i].x <= x && x < this.tileSet[i].x + TILE_WIDTH
@@ -299,12 +317,38 @@ var ViewedImage = function(id) {
         return null;
     };
 
+    this.roiAt = function (xpos, ypos) {
+        for(var i = 0; i < this.roiSet.length; i++) {
+            var t_roi = this.roiSet[i];
+            if(((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
+               && ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 - this.yOffset) 
+                    || (ypos >= t_roi.y + t_roi.height - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + t_roi.height + ICON_HEIGHT/2 - this.yOffset)))
+               ||
+               ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 + t_roi.height - this.yOffset)
+               && ((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 - this.xOffset) 
+                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset)))) {
+                   return t_roi;
+               }
+        }
+        return null;
+    }
+
 };
 
 // View Controls
 
 function clearCanvas(context) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); 
+}
+
+function markRoiButtonReady() {
+    document.getElementById("roiAddButton").classList.remove('danger');
+    document.getElementById("roiAddButton").classList.add('primary');
+}
+
+function markRoiButtonUse() {
+    document.getElementById("roiAddButton").classList.remove('primary');
+    document.getElementById("roiAddButton").classList.add('danger');
 }
 
 function refreshTiles() {
@@ -345,6 +389,23 @@ function renderViewport(context) {
 // Dirty global function
 function redraw() {
     renderViewport(viewportContext);
+}
+
+function renderRoiInfo(targetRoi) {
+    var taglist = document.getElementById('taglist');
+    targetRoi.tagSet.map(function(tagId) {
+        // Get the tag name
+        // Create a label
+        var label = document.createElement('span');
+        label.setAttribute('class', 'label');
+        label.innerHTML(targetImage.nameForTag(tagId));
+        // Append it
+        taglist.appendChild(label)
+    });
+    // Append tags to the view
+
+    // Show the view
+    $(selectedRoiInfo).show('normal');
 }
 
 function onViewportMoved(deltaX, deltaY) {
@@ -414,6 +475,7 @@ function mouseDown(event) {
         dragStartX = event.clientX;
         dragStartY = event.clientY;
         document.body.style.cursor = 'crosshair';
+
     } else if(viewportMode == VIEWPORT_PAN) {
         selectedRoi = targetImage.roiAt(getRelativeX(event), 
                                         getRelativeY(event));
@@ -422,7 +484,7 @@ function mouseDown(event) {
             selectedRoi.highlight = true;
             // dispatch event with coords relative to it
             viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
-                                 getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
+                                                    getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
             redraw();
         } 
         if(viewportDragging) {
@@ -471,38 +533,48 @@ function mouseMove(event) {
 function penUp() {
     if(viewportMode == VIEWPORT_DRAW) {
         viewportMode = VIEWPORT_PAN;
-        document.getElementById("roiAddButton").classList.remove('danger');
-        document.getElementById("roiAddButton").classList.add('primary');
+        markRoiButtonReady();
     }
 }
 
 function penDown() {
     if(viewportMode == VIEWPORT_PAN) {
         viewportMode = VIEWPORT_DRAW;
-        document.getElementById("roiAddButton").classList.remove('primary');
-        document.getElementById("roiAddButton").classList.add('danger');    } else {
+        markRoiButtonUse();
+    } else {
         penUp();
     }
 }
 
+function showInfo(targetRoi) {
+    // Check that we've got the tags
+    targetRoi.getTags();
+
+    // Prep the view
+    renderRoiInfo(targetRoi);
+
+}
+
 function addTag() {
     // TODO add tag from input box
+    // Check if tag exists 
+    //    if Not, XHR create it
+    // Apply tag to selected
 }
 
 // Setup Viewport canvas
 function initViewport() {
-
     window.viewportCanvas = document.getElementById('viewport');  
 
     // Check that these things work ok: 
     if(viewportCanvas && viewportCanvas.getContext) {
         window.viewportContext = viewportCanvas.getContext('2d');
+
         // Register Events
         viewportCanvas.addEventListener('keydown', keyMove);
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
-
 
         // Setup the canvas with the right images
         refreshTiles();
@@ -517,6 +589,7 @@ function init(imageName) {
     // Grab info for the target image
     targetImage.getInfo();
     targetImage.getRois();
+    targetImage.getTags();
     console.log("TargetImage Ready")
 
     // Init Viewport
