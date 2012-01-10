@@ -65,6 +65,12 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.highlight  = false;
     this.resizing   = false;
 
+    this.color      = {
+        red:   0,
+        green: 255,
+        blue:  0
+    };
+
     this.getTags = function() {
         var request = new XMLHttpRequest();
         request.open('GET', '/roi/'+this.id+'/tags', false);
@@ -164,7 +170,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             && xCoord < context.canvas.width 
             && yCoord < context.canvas.height){
             // TODO Select a color
-            context.strokeStyle = 'rgb('+0+',' + 255 + ',' + 0 + ')';
+            context.strokeStyle = 'rgb('+this.color.red+',' + this.color.green + ',' +this.color.blue + ')';
 
             // Draw a box at the coords
             context.strokeRect(xCoord, yCoord, this.width, this.height);
@@ -502,22 +508,6 @@ function getRelativeY(event) {
     return (event.clientY - $(viewportCanvas).offset().top);
 }
 
-function keyMove(event) {
-    if(event.keyCode == '65' && targetImage.xOffset >= KEY_INCREMENT) {
-        // Left
-        onViewportMoved(-KEY_INCREMENT, 0);
-    } else if(event.keyCode == '87' && targetImage.yOffset >= KEY_INCREMENT) {
-        // Up
-        onViewportMoved(0, -KEY_INCREMENT);
-    } else if(event.keyCode == '83' && targetImage.yOffset < targetImage.height - viewportCanvas.height) {
-        // Down
-        onViewportMoved(0, KEY_INCREMENT);
-    } else if(event.keyCode == '68' && targetImage.xOffset < targetImage.width - viewportCanvas.width) {
-        // Right
-        onViewportMoved(KEY_INCREMENT, 0);
-    }
-}
-
 function mouseDown(event) {
     var prevRoi = selectedRoi;
 
@@ -639,7 +629,6 @@ function initViewport() {
         window.viewportContext = viewportCanvas.getContext('2d');
 
         // Register Events
-        viewportCanvas.addEventListener('keydown', keyMove);
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
