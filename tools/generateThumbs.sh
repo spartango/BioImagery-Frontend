@@ -1,7 +1,7 @@
 #!/bin/sh
 
 THUMB_WIDTH=330
-THUMB_HEIGHT=230
+THUMB_HEIGHT=334
 
 for image in `ls ../images`; do
     PARAMS="$THUMB_WIDTH"x"$THUMB_HEIGHT"

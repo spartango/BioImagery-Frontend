@@ -3,6 +3,7 @@ var tiling = require('../tools/tiling'),
 
 var imageDir = __dirname+'/../images/'
 var tileDir  = __dirname+'/../tiles/'
+var thumbDir = __dirname+'/../thumbs/'
 
 var Sequelize = require('sequelize')
 
@@ -75,6 +76,47 @@ exports.tile = function(req, res){
 
                 // Get the tile from disk 
                 fs.readFile(tileDir + tilename, 
+                    function(err, data) {
+                        if(err) {
+                            // Error Condition
+                            res.send('', 404);
+                        } else {
+                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.end(data, 'binary');
+                        }
+                    }
+                );
+                // Send the tile along
+            } else {
+                // Error Condition
+                res.send('', 404);
+            }
+
+        });  
+    } else {
+        // param Error Condition 
+        // Send a 400 back
+        res.send('Bad Params', 400);
+    }
+    
+};
+
+/*
+ * GET a thumbnail
+ */
+
+exports.thumb = function(req, res){
+    // Get the image ID
+    var imageId = req.params.id;
+   // Assert that the image offsets are safe
+    // Floor the image offsets to the nearest bin 
+    if(imageId) {
+        Image.find(Number(imageId)).on('success', function(image) {
+            if(image) {
+                var thumbname = 'thumb_'+image.filename;
+
+                // Get the tile from disk 
+                fs.readFile(thumbDir + thumbname, 
                     function(err, data) {
                         if(err) {
                             // Error Condition
@@ -232,4 +274,24 @@ exports.imageinfo = function(req, res) {
         res.send('Bad Params', 400);
     }
 
+};
+
+exports.overview = function(req, res){
+    // TODO implement pagination
+    Image.findAll().on('success', function(images) {
+            if(images) {
+                // Generate an ID set
+                var imageSet = images.map(function(image) {
+                    return image.id;
+                });
+                res.render('overview', {title: 'Overview', 
+                                        images: imageSet });
+                // Send it along
+            } else {
+                // Error condition
+                // Send a 404 back
+                res.render('404', {title: '404: Couldnt get Image Set'});
+            }
+
+    });
 };

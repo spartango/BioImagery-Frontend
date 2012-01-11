@@ -4,3 +4,7 @@ body {
 a { 
 
 }
+
+div.titlebar {
+    padding-left:15px;
+}
