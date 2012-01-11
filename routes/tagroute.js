@@ -11,6 +11,7 @@ var Tag   = db.import(__dirname +'/../models/tag');
 Image.hasMany(Roi);
 Roi.belongsTo(Image); 
 Roi.hasMany(Tag);
+Tag.hasMany(Roi);
 
 exports.tags = function(req, res) {
     // Get all the tags from the database
@@ -53,7 +54,8 @@ exports.createtag = function(req, res) {
 
         // Send back the id
         newTag.save().on('success', function(){
-            res.send(newTag.id, 200);
+            console.log('Created tag '+newTag.id);
+            res.send(''+newTag.id, 200);
         });
 
     } else{

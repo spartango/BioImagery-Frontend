@@ -42,6 +42,7 @@ var Tag   = db.import(__dirname + '/models/tag');
 Image.hasMany(Roi);
 Roi.belongsTo(Image); 
 Roi.hasMany(Tag);
+Tag.hasMany(Roi);
 
 // Db Setup 
 db.sync({force: false}).on('success', function() {
@@ -60,7 +61,7 @@ var routes      = require(__dirname + '/routes/index');
 
 console.log("Loaded Routes");
 
-app.get('/',                     routes.index);
+app.get('/',                     imageroutes.overview);
 app.get('/image',                imageroutes.showimages);  // Give a listing of images
 app.post('/image/create',        imageroutes.createimage); // Creates an Image
 app.get('/image/:id',            imageroutes.image);       // Provides raw images
@@ -68,11 +69,13 @@ app.get('/image/:id/describe',   imageroutes.imageinfo);   // Provides info abou
 app.get('/image/:id/view',       imageroutes.imageview);   // Provides info about the image
 app.get('/image/:id/tile',       imageroutes.tile);        // Provides tiles
 app.get('/image/:id/rois',       imageroutes.rois);        // Provides ROIs
+app.get('/image/:id/thumb',      imageroutes.thumb);       // Provides thumbnails
 app.post('/tag/create',          tagroutes.createtag);     // Creates a Tag
 app.get('/tag',                  tagroutes.tags);          // Lists all Tags
 app.get('/tag/:id',              tagroutes.gettag);        // Gets a name for a particular Tag
-app.post('/roi/create',          roiroutes.createroi);
+app.post('/roi/create',          roiroutes.createroi);     // Creates an ROI
 app.post('/roi/:id/update',      roiroutes.updateroi);     // Creates a ROI
+app.get('/roi/:id/tags',         roiroutes.gettags);       // Get the tags associated with an ROI
 app.post('/roi/:id/tag',         roiroutes.tagroi);        // Tags an ROI
 
 app.listen(8080);

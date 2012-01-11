@@ -4,18 +4,53 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/image.css')
+    link(rel='stylesheet', href='http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css')
     script(src='/javascripts/jquery-1.7.1.min.js')
     script(src='/javascripts/imageviewer.js')
 
     body(onload='init('+imageId+')')
-        h1= imageName
+        #pghead.page-header
+            #pgtitle.titlebar
+                h1 Image 
+                    small=imageId
+        #app.container-fluid
+            #viewer.content
+                | <canvas id="viewport" width=800 height=600> 
+                | </canvas>
+            #controls.sidebar
+                #description
+                    h6 Description
+                    p= imageDescription
+                hr
+                #selectedRoiInfo.selectDependent
+                    h6 Selected ROI
+                    #info
+                    #tags
+                        h6
+                            small Tags
+                        #taglist
+                        br
+                        #newtag.row
+                            input(id='newTagName').span3
+                            button(id='tagAddButton', onclick='addTag()').btn.primary.span1 +
+                    hr
+                #tools
+                    button(id='roiAddButton', onclick='penDown()').btn.primary New ROI
+                #nav.pagination.footer
+                    ul
+                        - if(imageId == 1)
+                            li.prev.disabled
+                                a(href='#') &larr; Previous
+                        - else 
+                            li.prev
+                                a(href='/image/'+(imageId-1)+'/view') &larr; Previous
+                        
+                        li.active
+                            a(href='/image/'+imageId+'/view')=imageId
 
-        #description.textbox
-            p= imageDescription
-
-        #viewer.viewbox
-            | <canvas id="viewport" width=1000 height=600> 
-            | </canvas>
-        #controls.controlbox
-            | <button onclick=penDown()>+</button>
-
+                        - if(imageId >= imageCount)
+                            li.next.disabled
+                                a(href='#') &rarr; Next
+                        - else 
+                            li.next
+                                a(href='/image/'+(Number(imageId)+1) +'/view') &rarr; Next
