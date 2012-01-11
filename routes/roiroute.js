@@ -11,6 +11,7 @@ var Tag   = db.import(__dirname +'/../models/tag');
 Image.hasMany(Roi);
 Roi.belongsTo(Image); 
 Roi.hasMany(Tag);
+Tag.hasMany(Roi);
 
 /*
  * POST create a new roi 
@@ -107,6 +108,12 @@ exports.updateroi = function(req, res){
 
 };
 
+exports.notifyRoiChange = function(clientId, newRoi) {
+    // Generate an event
+    // Send the event with SSE
+    
+};
+
 exports.tagroi = function(req, res) {
     // Get the ROI param id
     var roiId = req.params.id;
@@ -114,16 +121,45 @@ exports.tagroi = function(req, res) {
     var tagId = req.body.tag;
     if(roiId && tagId) {
             // Look up the ROI
-            Roi.find(roiId).on('success', function(roi) {
+            console.log('Tagging ROI');
+            Roi.find(Number(roiId)).on('success', function(roi) {
                if(roi) {
                     // Look up the tag
-                    Tag.find(tagId).on('success', function(tag) {
-                        // TODO apply tag
+                    Tag.find(Number(tagId)).on('success', function(tag) {
+                        if(tag) {
+                            roi.addTag(tag);
+                            res.send('', 200);
+                        } else {
+                            res.send('No such tag', 404);
+                        }
                     });
-               }  
+                } else {
+                    res.send('No Such ROI', 404);
+                }
             });
    
     }
     // Create association between ROI and tag
 };
+
+exports.gettags = function(req, res){
+    var roiId = req.params.id;
+    if(roiId) {
+            // Look up the ROI
+            Roi.find(Number(roiId)).on('success', function(roi) {
+               if(roi) {
+                    // Get all the tags
+                    roi.getTags().on('success', function(tags){
+                        var json = JSON.stringify(tags.map(function(tag){
+                            return tag.id;
+                        }));
+                        // Generate a listing of them
+                        // Send it along
+                        res.send(json, 200);
+                    });
+               }  
+            });
+   
+    }
+}
 
