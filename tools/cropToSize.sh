@@ -10,7 +10,7 @@ for image in `ls ../rawimages/*.png`; do
      # Walk across x and y
      for (( xoffset = 0; xoffset < $WIDTH; xoffset+=$TILE_WIDTH )); do
          for (( yoffset = 0; yoffset < $LENGTH; yoffset+= TILE_LENGTH )); do
-            PARAMS="$TILE_WIDTH"x"$TILE_LENGTH+$xoffset+$yoffset"
+            PARAMS="$TARGET_WIDTH"x"$TARGET_HEIGHT+$xoffset+$yoffset"
             echo "Cropping $image with $PARAMS"
             convert "../images/$image" -crop $PARAMS "../images/$xoffset"_"$yoffset"_"$image"
          done
