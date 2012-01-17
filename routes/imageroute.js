@@ -217,9 +217,19 @@ exports.createimage = function(req, res) {
     // TODO setup the form
 };
 
-exports.showimages = function(req, res) {
-    //TODO Render the images page
-    res.render('404', {title: '404: Listing Not Found'});
+exports.listimages = function(req, res) {
+    Image.findAll().on('success', function(images) {
+        if(images) {
+            // Generate an ID set
+            var imageSet = images.map(Image.dictify);
+            // Send it along
+            res.send(JSON.stringify(imageSet), 200);
+        } else {
+            // Error condition
+            // Send a 404 back
+            res.render('404', {title: '404: Couldnt get Image Set'});
+        }
+    });
 };
 
 exports.imageview = function(req, res) {
