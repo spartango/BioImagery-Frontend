@@ -38,7 +38,7 @@ exports.image = function(req, res){
                             // Error Condition
                             res.render('404', {title: '404 Image File Not Found'});
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
