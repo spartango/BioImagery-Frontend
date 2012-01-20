@@ -11,3 +11,8 @@ div.footer {
 	bottom:0;
 	z-index:999999;
 }
+
+div.darkbg {
+	background-image:url('/images/dark_bg.png');
+	background-repeat:no-repeat;
+}
