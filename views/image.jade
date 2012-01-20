@@ -11,11 +11,12 @@ html
     body(onload='init('+imageId+')')
         #pghead.page-header
             #pgtitle.titlebar
-                h1 Image 
-                    small=imageId
+                a(href='/')
+                    h1 Image 
+                        small=imageId
         #app.container-fluid
-            #viewer.content.darkbg
-                | <canvas id="viewport" width=800 height=600> 
+            #viewer.content
+                | <canvas class="darkbg" id="viewport" width=800 height=600> 
                 | </canvas>
             #controls.sidebar
                 #description
