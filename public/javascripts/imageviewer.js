@@ -65,6 +65,8 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.highlight  = false;
     this.resizing   = false;
 
+    this.isnew      = false;
+
     this.color      = {
         red:   0,
         green: 255,
@@ -165,7 +167,8 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         var xCoord = this.x - parent.xOffset;
         var yCoord = this.y - parent.yOffset;
         // Check that we should render
-        if(xCoord + this.width >= 0
+        if(this.isnew
+            && xCoord + this.width >= 0
             && yCoord + this.height >= 0
             && xCoord < context.canvas.width
             && yCoord < context.canvas.height){
@@ -458,7 +461,7 @@ function deselectRoi(targetRoi) {
 function selectRoi (newRoi) {
     selectedRoi = newRoi;
     selectedRoi.highlight = true;
-    selectedRoi.resizing = true;
+    selectedRoi.resizing  = true;
 }
 
 function renderRoiInfo(targetRoi) {
@@ -531,6 +534,8 @@ function mouseDown(event) {
         targetImage.roiSet.push(newRoi);
         // Mark it selected
         selectRoi(newRoi);
+
+        newRoi.isnew = true;
 
         // Starting a drag
         viewportDragging = true;
