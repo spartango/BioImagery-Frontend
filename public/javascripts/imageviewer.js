@@ -649,6 +649,7 @@ function initViewport() {
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('keypress', penDown);
 
         // Setup the canvas with the right images
         refreshTiles();
