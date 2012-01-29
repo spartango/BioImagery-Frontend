@@ -629,7 +629,22 @@ function showInfo(targetRoi) {
         // Prep the view
         renderRoiInfo(targetRoi);
     }
+}
 
+function showRois() {
+    targetImage.roiSet.map(function(roi) {
+        roi.isnew = true;
+    });
+
+    redraw();
+}
+
+function hideRois() {
+    targetImage.roiSet.map(function(roi) {
+        roi.isnew = false;
+    });
+
+    redraw();
 }
 
 function addTag() {
