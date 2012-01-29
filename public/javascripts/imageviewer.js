@@ -380,13 +380,15 @@ var ViewedImage = function(id) {
     this.roiAt = function (xpos, ypos) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
-            if(((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
+            if(t_roi.isnew
+               &&
+               (((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
                && ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 - this.yOffset)
                     || (ypos >= t_roi.y + t_roi.height - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + t_roi.height + ICON_HEIGHT/2 - this.yOffset)))
                ||
                ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 + t_roi.height - this.yOffset)
                && ((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 - this.xOffset)
-                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset)))) {
+                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset))))) {
                    return t_roi;
                }
         }
