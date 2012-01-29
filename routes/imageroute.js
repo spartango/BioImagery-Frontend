@@ -16,7 +16,7 @@ var Tag   = db.import(__dirname +'/../models/tag');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+Roi.belongsTo(Image);
 Roi.hasMany(Tag);
 Tag.hasMany(Roi);
 
@@ -27,12 +27,12 @@ Tag.hasMany(Roi);
 exports.image = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Get the raw file from the disk
-                fs.readFile(imageDir + image.filename, 
+                fs.readFile(imageDir + image.filename,
                     function(err, data) {
                         if(err) {
                             // Error Condition
@@ -50,7 +50,7 @@ exports.image = function(req, res){
                 res.render('404', {title: '404 Image Record Not Found'});
             }
 
-        });  
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -68,20 +68,20 @@ exports.tile = function(req, res){
     var xOffset = tiling.TILE_WIDTH * Math.floor(req.param('x') / tiling.TILE_WIDTH);
     var yOffset = tiling.TILE_LENGTH * Math.floor(req.param('y') / tiling.TILE_LENGTH);
     // Assert that the image offsets are safe
-    // Floor the image offsets to the nearest bin 
+    // Floor the image offsets to the nearest bin
     if(imageId && xOffset != null && yOffset != null) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var tilename = tiling.generateTileName(xOffset, yOffset, image.filename);
 
-                // Get the tile from disk 
-                fs.readFile(tileDir + tilename, 
+                // Get the tile from disk
+                fs.readFile(tileDir + tilename,
                     function(err, data) {
                         if(err) {
                             // Error Condition
                             res.send('', 404);
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
@@ -92,13 +92,13 @@ exports.tile = function(req, res){
                 res.send('', 404);
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
-    
+
 };
 
 /*
@@ -109,20 +109,20 @@ exports.thumb = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
    // Assert that the image offsets are safe
-    // Floor the image offsets to the nearest bin 
+    // Floor the image offsets to the nearest bin
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var thumbname = 'thumb_'+image.filename;
 
-                // Get the tile from disk 
-                fs.readFile(thumbDir + thumbname, 
+                // Get the tile from disk
+                fs.readFile(thumbDir + thumbname,
                     function(err, data) {
                         if(err) {
                             // Error Condition
                             res.send('', 404);
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
@@ -133,17 +133,17 @@ exports.thumb = function(req, res){
                 res.send('', 404);
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
-    
+
 };
 
 /*
- * GET rois 
+ * GET rois
  */
 
 exports.rois = function(req, res){
@@ -153,17 +153,17 @@ exports.rois = function(req, res){
     var yOffset = req.param('y');
     var width   = req.param('width');
     var height  = req.param('height');
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Ask the db for all ROIs on a given image
                 image.getRois().on('success', function(rois){
-                    var targets; 
+                    var targets;
                     // If  bounds are requested, filter by the bounding params
-                    if(xOffset      != null 
-                        && yOffset  != null 
-                        && width    != null 
+                    if(xOffset      != null
+                        && yOffset  != null
+                        && width    != null
                         && height   != null) {
                         targets = rois.filter(function(roi) {
                             return roi.x >= xOffset
@@ -179,14 +179,14 @@ exports.rois = function(req, res){
                     var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
                 });
-                    
+
             } else {
                 res.render('404', {title: '404'});
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
@@ -240,8 +240,8 @@ exports.imageview = function(req, res) {
                 // Get the imagecount
                 Image.count().on('success', function(count) {
                     res.render('image', {
-                        title: 'Image', 
-                        imageId: imageId, 
+                        title: 'Image',
+                        imageId: imageId,
                         imageName: image.filename,
                         imageDescription: image.description,
                         imageCount: count
@@ -253,7 +253,7 @@ exports.imageview = function(req, res) {
                 res.render('404', {title: '404: Image not Found'});
             }
 
-        }); 
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -264,7 +264,7 @@ exports.imageview = function(req, res) {
 exports.imageinfo = function(req, res) {
     // Get the image ID
     var imageId = req.params.id;
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
@@ -277,7 +277,7 @@ exports.imageinfo = function(req, res) {
                 res.render('404', {title: '404: Image not Found'});
             }
 
-        });  
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -294,7 +294,7 @@ exports.overview = function(req, res){
                 var imageSet = images.map(function(image) {
                     return image.id;
                 });
-                res.render('overview', {title: 'Overview', 
+                res.render('overview', {title: 'Overview',
                                         images: imageSet });
                 // Send it along
             } else {

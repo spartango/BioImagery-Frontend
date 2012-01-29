@@ -636,6 +636,9 @@ function showRois() {
         roi.isnew = true;
     });
 
+    document.getElementById('roiShowButton').onclick = function (event) { hideRois(); };
+    document.getElementById("roiShowButton").classList.remove('primary');
+    document.getElementById("roiShowButton").classList.add('danger');
     redraw();
 }
 
@@ -644,6 +647,9 @@ function hideRois() {
         roi.isnew = false;
     });
 
+    document.getElementById('roiShowButton').onclick = function (event) { showRois(); };
+    document.getElementById("roiShowButton").classList.remove('danger');
+    document.getElementById("roiShowButton").classList.add('primary');
     redraw();
 }
 
