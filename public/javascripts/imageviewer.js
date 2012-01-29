@@ -577,6 +577,13 @@ function mouseDown(event) {
 
 function mouseUp(event) {
     viewportDragging = false;
+
+    if(selectedRoi) {
+        setTimeout(function(){
+            selectedRoi.save();
+        }, 10000);
+    }
+
     penUp();
     document.body.style.cursor = 'default';
 }
