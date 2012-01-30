@@ -673,6 +673,8 @@ function initViewport() {
 
     // Check that these things work ok:
     if(viewportCanvas && viewportCanvas.getContext) {
+        viewportCanvas.height  = document.getElementById('viewer').clientHeight;
+        viewportCanvas.width   = document.getElementById('viewer').clientWidth;
         window.viewportContext = viewportCanvas.getContext('2d');
 
         // Register Events
@@ -690,6 +692,7 @@ function initViewport() {
 // Setup root
 
 function init(imageName) {
+
     window.targetImage = new ViewedImage(imageName);
     // Grab info for the target image
     targetImage.getInfo();
