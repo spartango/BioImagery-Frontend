@@ -443,6 +443,11 @@ function renderViewport(context) {
     clearCanvas(context);
     // Render the image
     targetImage.render(context);
+
+    if(selectedRoi) {
+        drawRoiFocus(selectedRoi, context);
+    }
+
 }
 
 // Dirty global function
@@ -454,13 +459,12 @@ function deselectRoi(targetRoi) {
     hideRoiInfo();
     targetRoi.resizing  = false;
     targetRoi.highlight = false;
-    targetRoi           = null;
 }
 
-function selectRoi (newRoi) {
-    selectedRoi = newRoi;
-    selectedRoi.highlight = true;
-    selectedRoi.resizing  = true;
+function selectRoi(newRoi) {
+    newRoi.highlight = true;
+    newRoi.resizing  = true;
+    showInfo(newRoi);
 }
 
 function renderRoiInfo(targetRoi) {
@@ -488,19 +492,17 @@ function hideRoiInfo() {
     $(selectedRoiInfo).hide('normal');
 }
 
-function drawRoiFocus(context) {
-    if(selectedRoi) {
-        context.fillStyle = "rgba(255, 255, 255, 0.5)";
+function drawRoiFocus(targetRoi, context) {
+    context.fillStyle = "rgba(0, 0, 0, 0.5)";
 
-        // Unfocus surround
-        var xCoord = selectedRoi.x - targetImage.xOffset;
-        var yCoord = selectedRoi.y - targetImage.yOffset;
+    // Unfocus surround
+    var xCoord = targetRoi.x - targetImage.xOffset;
+    var yCoord = targetRoi.y - targetImage.yOffset;
 
-        context.fillRect(0, 0, xCoord, context.canvas.height);
-        context.fillRect(xCoord + selectedRoi.width, 0, context.canvas.width - xCoord, context.canvas.height);
-        context.fillRect(xCoord, 0, selectedRoi.width, yCoord);
-        context.fillRect(xCoord, yCoord + selectedRoi.height, selectedRoi.width, context.canvas.height);
-    }
+    context.fillRect(0, 0, xCoord, context.canvas.height);
+    context.fillRect(xCoord + targetRoi.width, 0, context.canvas.width - xCoord, context.canvas.height);
+    context.fillRect(xCoord, 0, targetRoi.width, yCoord);
+    context.fillRect(xCoord, yCoord + targetRoi.height, targetRoi.width, context.canvas.height);
 }
 
 function onViewportMoved(deltaX, deltaY) {
@@ -510,7 +512,7 @@ function onViewportMoved(deltaX, deltaY) {
         // Adjust the offsets
         refreshTiles();
         // render the Viewport
-        renderViewport(viewportContext);
+        redraw();
     }
 }
 
@@ -542,14 +544,15 @@ function mouseDown(event) {
     var prevRoi = selectedRoi;
 
     if(viewportMode == VIEWPORT_DRAW) {
-        var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset,
+        selectedRoi = new Roi(getRelativeX(event) + targetImage.xOffset,
                              getRelativeY(event) + targetImage.yOffset,
                              0, 0, 0, null, targetImage);
-        targetImage.roiSet.push(newRoi);
-        // Mark it selected
-        selectRoi(newRoi);
+        targetImage.roiSet.push(selectedRoi);
 
-        newRoi.isnew = true;
+        // Mark it selected
+        selectRoi(selectedRoi);
+
+        selectedRoi.isnew = true;
 
         // Starting a drag
         viewportDragging = true;
@@ -567,15 +570,14 @@ function mouseDown(event) {
         }
 
         if(selectedRoi){
-            selectedRoi.highlight = true;
-            showInfo(selectedRoi);
+            selectRoi(selectedRoi);
 
             // dispatch event with coords relative to it
             viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
                                                     getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
-            redraw();
-            drawRoiFocus(viewportContext);
         }
+
+        redraw();
 
         if(viewportDragging) {
             dragStartX = event.clientX;
@@ -591,9 +593,11 @@ function mouseDown(event) {
 function mouseUp(event) {
     viewportDragging = false;
 
-    if(selectedRoi) {
+    if(selectedRoi && !selectedRoi.saved) {
+        var targetRoi = selectedRoi;
         setTimeout(function(){
-            selectedRoi.save();
+            if(!targetRoi.saved)
+                targetRoi.save();
         }, 10000);
     }
 
