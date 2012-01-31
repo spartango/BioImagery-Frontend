@@ -225,10 +225,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             if(!this.id) {
                 // Delete
                 this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
-            } /*else {
-                //Tag
-                showInfo(this);
-            } */
+            }
             return false;
         }
         // Lower right corner
@@ -487,8 +484,23 @@ function renderRoiInfo(targetRoi) {
     $(selectedRoiInfo).show('normal');
 }
 
-function hideRoiInfo(){
+function hideRoiInfo() {
     $(selectedRoiInfo).hide('normal');
+}
+
+function drawRoiFocus(context) {
+    if(selectedRoi) {
+        context.fillStyle = "rgba(255, 255, 255, 0.5)";
+
+        // Unfocus surround
+        var xCoord = selectedRoi.x - targetImage.xOffset;
+        var yCoord = selectedRoi.y - targetImage.yOffset;
+
+        context.fillRect(0, 0, xCoord, context.canvas.height);
+        context.fillRect(xCoord + selectedRoi.width, 0, context.canvas.width - xCoord, context.canvas.height);
+        context.fillRect(xCoord, 0, selectedRoi.width, yCoord);
+        context.fillRect(xCoord, yCoord + selectedRoi.height, selectedRoi.width, context.canvas.height);
+    }
 }
 
 function onViewportMoved(deltaX, deltaY) {
@@ -562,6 +574,7 @@ function mouseDown(event) {
             viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
                                                     getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
             redraw();
+            drawRoiFocus(viewportContext);
         }
 
         if(viewportDragging) {
