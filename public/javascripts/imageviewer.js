@@ -493,7 +493,7 @@ function hideRoiInfo() {
 }
 
 function drawRoiFocus(targetRoi, context) {
-    context.fillStyle = "rgba(0, 0, 0, 0.5)";
+    context.fillStyle = "rgba(255, 255, 255, 0.5)";
 
     // Unfocus surround
     var xCoord = targetRoi.x - targetImage.xOffset;
@@ -558,7 +558,6 @@ function mouseDown(event) {
         viewportDragging = true;
         dragStartX = event.clientX;
         dragStartY = event.clientY;
-        document.body.style.cursor = 'crosshair';
 
     } else if(viewportMode == VIEWPORT_PAN) {
         selectedRoi = targetImage.roiAt(getRelativeX(event),
@@ -588,6 +587,12 @@ function mouseDown(event) {
 
     // Don't do the stupid select thing in the canvas
     event.preventDefault();
+}
+
+function keyShortcut(event) {
+    if(event.keyCode == 110 && document.activeElement != newTagName) {
+        penDown();
+    }
 }
 
 function mouseUp(event) {
@@ -627,6 +632,9 @@ function mouseMove(event) {
 function penUp() {
     if(viewportMode == VIEWPORT_DRAW) {
         viewportMode = VIEWPORT_PAN;
+
+        document.body.style.cursor = 'default';
+
         markRoiButtonReady();
     }
 }
@@ -634,10 +642,16 @@ function penUp() {
 function penDown() {
     if(viewportMode == VIEWPORT_PAN) {
         viewportMode = VIEWPORT_DRAW;
+
+        document.body.style.cursor = 'crosshair';
+
         markRoiButtonUse();
 
-        if(selectedRoi)
+        if(selectedRoi) {
             deselectRoi(selectedRoi);
+            selectedRoi = null;
+            redraw();
+        }
 
     } else {
         penUp();
@@ -698,7 +712,7 @@ function initViewport() {
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
-        window.addEventListener('keypress', penDown);
+        window.addEventListener('keypress', keyShortcut);
 
         // Setup the canvas with the right images
         refreshTiles();
