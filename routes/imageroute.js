@@ -205,7 +205,7 @@ exports.createimage = function(req, res) {
         // Write the file
         var tmp_path = req.files.image.path;
         // set where the file should actually exists - in this case it is in the "images" directory
-        var target_path = __dirname + '/images/' + req.files.image.name;
+        var target_path = imageDir + req.files.image.name;
 
         // TODO nicely format/cut up images/gen thumbs/gen tiles
 
@@ -213,7 +213,7 @@ exports.createimage = function(req, res) {
         fs.rename(tmp_path, target_path, function(err) {
             // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
             fs.unlink(tmp_path, function() {
-                if (err) console.log("Failed to move image to image path");
+                if (err) console.log("Failed to move image to image path "+tmp_path+" to "+target_path);
             });
         });
 
