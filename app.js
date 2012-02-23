@@ -19,7 +19,9 @@ var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-  app.use(express.bodyParser());
+  app.use(express.bodyParser({
+    uploadDir: __dirname + '/rawimages'
+  }));
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));

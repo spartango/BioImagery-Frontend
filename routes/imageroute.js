@@ -197,33 +197,33 @@ exports.rois = function(req, res){
 exports.createimage = function(req, res) {
     var form = new formidable.IncomingForm();
     form.uploadDir = __dirname + '/rawimages'
+    console.log("Got an image upload, parsing");
+    var name         = req.body.name
+    var rDescription = req.body.description;
+    
+    var rheight      = Number(req.body.height);
+    var rwidth       = Number(req.body.width);
 
-    form.parse(req, function(err, fields, files) {
-        var name         = fields.name
-        var rDescription = fields.description;
-        
-        var rheight      = Number(fields.height);
-        var rwidth       = Number(fields.width);
+    if(name && rheight != NaN && rwidth != NaN && req.files.image) {
+        // Write the file
+        console.log("Parsed upload contents");
 
-        if(name && rheight != NaN && rwidth != NaN) {
-            // Write the file
-
-            // Build the metadata
-            var newImage = Image.build({
-                filename:    name,
-                description: rDescription,
-                height:      rheight,
-                width:       rwidth
-            });
-            newImage.save().on('success', function() {
-                res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
-            }).on('failure', function(error){
-                res.render('upload', {title: 'Upload Image', previous: 'Upload Failed'});
-            });
-        } else {
-            res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
-        }
-    });
+        // Build the metadata
+        var newImage = Image.build({
+            filename:    name,
+            description: rDescription,
+            height:      rheight,
+            width:       rwidth
+        });
+        newImage.save().on('success', function() {
+            res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
+        }).on('failure', function(error){
+            res.render('upload', {title: 'Upload Image', previous: 'Upload Failed'});
+        });
+    } else {
+        res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
+    }
+    console.log('Complete');
 };
 
 exports.listimages = function(req, res) {
