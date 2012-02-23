@@ -29,7 +29,7 @@ function diceImage(imagePath, targetDir, targetWidth, targetHeight, callback) {
         var height = features.height;
         // Raster across image
         for(var xOffset = 0; xOffset < width - targetWidth; xOffset += targetWidth) {
-            for (var yOffset = yOffset < height - targetHeight; yOffset += targetHeight) {
+            for (var yOffset = 0; yOffset < height - targetHeight; yOffset += targetHeight) {
                 var parts      = rawPath.split("/");
                 var targetFile = xOffset+"_"+yOffset+"_"+parts[parts.length-1];
                 dicedImages.push(targetFile);
