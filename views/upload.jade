@@ -15,10 +15,6 @@ html
             #uploader.content
                 form.well(action="/image/create", method="post", enctype="multipart/form-data")
                     #fields.clearfix
-                        label Name
-                        #name.input
-                            input(type='text', name="name", placeholder="Something Descriptive")
-                        br
                         label Width 
                         #width.input
                             input.input-min(type='text', name="width", placeholder="in pixels")
