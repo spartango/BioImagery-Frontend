@@ -10,9 +10,12 @@ for image in `ls ../rawimages/`; do
      # Walk across x and y
      for (( xoffset = 0; xoffset < WIDTH-TARGET_WIDTH; xoffset+= TARGET_WIDTH )); do
          for (( yoffset = 0; yoffset < LENGTH-TARGET_HEIGHT; yoffset+= TARGET_HEIGHT )); do
-            PARAMS="$TARGET_WIDTH"x"$TARGET_HEIGHT+$xoffset+$yoffset"
-            echo "Cropping $image with $PARAMS to ../images/$xoffset"_"$yoffset"_"$image"
-            convert "../rawimages/$image" -crop $PARAMS "../images/$xoffset"_"$yoffset"_"$image"
+            TARGETFILE="../images/$xoffset"_"$yoffset"_"$image"
+            if [[ ! -f  ]]; then
+                PARAMS="$TARGET_WIDTH"x"$TARGET_HEIGHT+$xoffset+$yoffset"
+                echo "Cropping $image with $PARAMS to ../images/$xoffset"_"$yoffset"_"$image"
+                convert "../rawimages/$image" -crop $PARAMS $TARGETFILE
+            fi
          done
      done
 done 

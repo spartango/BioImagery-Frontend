@@ -13,9 +13,13 @@ for image in `ls ../images`; do
      # Walk across x and y
      for (( xoffset = 0; xoffset <= WIDTH - TILE_WIDTH; xoffset+= TILE_WIDTH )); do
          for (( yoffset = 0; yoffset <= LENGTH - TILE_LENGTH; yoffset+= TILE_LENGTH )); do
-            PARAMS="$TILE_WIDTH"x"$TILE_LENGTH+$xoffset+$yoffset"
-            echo "Cropping $image with $PARAMS"
-            convert "../images/$image" "+repage" -crop $PARAMS  "../tiles/$xoffset"_"$yoffset"_"$image"
+            TARGETFILE="../tiles/$xoffset"_"$yoffset"_"$image"
+            if [[ ! -f $TARGETFILE ]]; then
+                PARAMS="$TILE_WIDTH"x"$TILE_LENGTH+$xoffset+$yoffset"
+                echo "Cropping $image with $PARAMS"
+                convert "../images/$image" "+repage" -crop $PARAMS $TARGETFILE
+            fi
+
          done
      done
 done 
