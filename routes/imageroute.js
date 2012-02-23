@@ -3,6 +3,7 @@ var tiling         = require('../tools/tiling'),
         formidable = require('formidable')         
 
 var imageDir = __dirname+'/../images/'
+var rawImageDir = __dirname+'/../rawimages/'
 var tileDir  = __dirname+'/../tiles/'
 var thumbDir = __dirname+'/../thumbs/'
 
@@ -205,14 +206,15 @@ exports.createimage = function(req, res) {
         // Write the file
         var tmpPath = req.files.image.path;
 
-        var pngImage      = tiling.convertToPng(tmpPath, imageDir);
-        var croppedImages = tiling.cropToSize(pngImage);
-        croppedImages.map(tiling.generateThumbs);
-        croppedImages.map(tiling.generateTiles);
-        croppedImages.map(function(name) {
+        var pngImage      = tiling.convertToPng(tmpPath, rawImageDir);
+        var croppedImages = tiling.cropToSize(pngImage, imageDir);
+        
+        croppedImages.map(tiling.generateThumbs, thumbDir);
+        croppedImages.map(tiling.generateTiles, tileDir);
+        croppedImages.map(function(sname) {
             // Build the metadata
             var newImage = Image.build({
-                filename:    name,
+                filename:    sname,
                 description: rDescription,
                 height:      rheight,
                 width:       rwidth
@@ -220,7 +222,7 @@ exports.createimage = function(req, res) {
             newImage.save();
         });
 
-        
+        res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
     } else {
         res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
     }
