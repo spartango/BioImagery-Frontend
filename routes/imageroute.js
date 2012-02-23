@@ -207,19 +207,23 @@ exports.createimage = function(req, res) {
         var tmpPath = req.files.image.path;
 
         var pngImage      = tiling.convertToPng(tmpPath, rawImageDir);
-        var croppedImages = tiling.cropToSize(pngImage, imageDir);
-        
-        croppedImages.map(tiling.generateThumbs, thumbDir);
-        croppedImages.map(tiling.generateTiles, tileDir);
-        croppedImages.map(function(sname) {
-            // Build the metadata
-            var newImage = Image.build({
-                filename:    sname,
-                description: rDescription,
-                height:      rheight,
-                width:       rwidth
+        tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
+            croppedImages.map( function (imageName) {
+                tiling.generateThumbs(imageName, thumbDir, function() {});
             });
-            newImage.save();
+            croppedImages.map(function (imageName) {
+                tiling.generateTiles(imageName, tileDir,  function() {});
+            });
+            croppedImages.map(function(imageName) {
+                // Build the metadata
+                var newImage = Image.build({
+                    filename:    imageName,
+                    description: rDescription,
+                    height:      rheight,
+                    width:       rwidth
+                });
+                newImage.save();
+            });
         });
 
         res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
