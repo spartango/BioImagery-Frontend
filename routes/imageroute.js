@@ -204,9 +204,9 @@ exports.createimage = function(req, res) {
 
     if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
         // Write the file
-        var tmpPath = req.files.image.path;
-
-        var pngImage      = tiling.convertToPng(tmpPath, rawImageDir);
+        var tmpPath  = req.files.image.path;
+        var pngImage = tiling.convertToPng(tmpPath, rawImageDir);
+        
         tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
             croppedImages.map( function (imageName) {
                 tiling.generateThumbs(imageName, thumbDir, function() {});
