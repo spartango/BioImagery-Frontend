@@ -1,5 +1,6 @@
-var tiling = require('../tools/tiling'),
-        fs = require('fs')
+var tiling         = require('../tools/tiling'),
+        fs         = require('fs'),
+        formidable = require('formidable')         
 
 var imageDir = __dirname+'/../images/'
 var tileDir  = __dirname+'/../tiles/'
@@ -194,27 +195,35 @@ exports.rois = function(req, res){
 };
 
 exports.createimage = function(req, res) {
-    //Test: Make some initial images
-    var name = req.body.name;
-    var rDescription = req.body.description;
-    var rheight = req.body.height;
-    var rwidth = req.body.width;
-    if(name && rheight && rwidth) {
-        var newImage = Image.build({
-            filename: name,
-            description: rDescription,
-            height: rheight,
-            width: rwidth
-        })
-        newImage.save().on('success', function() {
-            res.send("Test Saved OK", 200);
-        }).on('failure', function(error){
-            res.send("Failed to Save", 500);
-        });
-    } else {
-        res.send("Bad Params", 400);
-    }
-    // TODO setup the form
+    var form = new formidable.IncomingForm();
+    form.uploadDir = __dirname + '/rawimages'
+
+    form.parse(req, function(err, fields, files) {
+        var name         = fields.name
+        var rDescription = fields.description;
+        
+        var rheight      = Number(fields.height);
+        var rwidth       = Number(fields.width);
+
+        if(name && rheight != NaN && rwidth != NaN) {
+            // Write the file
+
+            // Build the metadata
+            var newImage = Image.build({
+                filename:    name,
+                description: rDescription,
+                height:      rheight,
+                width:       rwidth
+            });
+            newImage.save().on('success', function() {
+                res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
+            }).on('failure', function(error){
+                res.render('upload', {title: 'Upload Image', previous: 'Upload Failed'});
+            });
+        } else {
+            res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
+        }
+    });
 };
 
 exports.listimages = function(req, res) {
@@ -304,4 +313,9 @@ exports.overview = function(req, res){
             }
 
     });
+};
+
+exports.newimage = function(req, res) {
+    // Provides a form for uploading
+    res.render('upload', {title: 'Upload Image'});
 };

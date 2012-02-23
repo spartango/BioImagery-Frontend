@@ -63,6 +63,7 @@ console.log("Loaded Routes");
 
 app.get('/',                   imageroutes.overview);    // Overview of images
 app.get('/image',              imageroutes.listimages);  // Give a listing of images
+app.get('/image/new',          imageroutes.newimage);    // Provides an uploading interface
 app.post('/image/create',      imageroutes.createimage); // Creates an Image
 app.get('/image/:id',          imageroutes.image);       // Provides raw images
 app.get('/image/:id/describe', imageroutes.imageinfo);   // Provides info about the image
