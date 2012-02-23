@@ -203,32 +203,24 @@ exports.createimage = function(req, res) {
 
     if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
         // Write the file
-        var tmp_path = req.files.image.path;
-        // set where the file should actually exists - in this case it is in the "images" directory
-        var target_path = imageDir + req.files.image.name;
+        var tmpPath = req.files.image.path;
 
-        // TODO nicely format/cut up images/gen thumbs/gen tiles
-
-        // move the file from the temporary location to the intended location
-        fs.rename(tmp_path, target_path, function(err) {
-            // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-            fs.unlink(tmp_path, function() {
-                if (err) console.log("Failed to move image to image path "+tmp_path+" to "+target_path);
+        var pngImage      = tiling.convertToPng(tmpPath, imageDir);
+        var croppedImages = tiling.cropToSize(pngImage);
+        croppedImages.map(tiling.generateThumbs);
+        croppedImages.map(tiling.generateTiles);
+        croppedImages.map(function(name) {
+            // Build the metadata
+            var newImage = Image.build({
+                filename:    name,
+                description: rDescription,
+                height:      rheight,
+                width:       rwidth
             });
+            newImage.save();
         });
 
-        // Build the metadata
-        var newImage = Image.build({
-            filename:    name,
-            description: rDescription,
-            height:      rheight,
-            width:       rwidth
-        });
-        newImage.save().on('success', function() {
-            res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
-        }).on('failure', function(error){
-            res.render('upload', {title: 'Upload Image', previous: 'Upload Failed'});
-        });
+        
     } else {
         res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
     }
