@@ -211,7 +211,6 @@ exports.createimage = function(req, res) {
 
         // move the file from the temporary location to the intended location
         fs.rename(tmp_path, target_path, function(err) {
-            if (err) throw err;
             // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
             fs.unlink(tmp_path, function() {
                 if (err) console.log("Failed to move image to image path");
