@@ -1,6 +1,6 @@
-var tiling         = require('../tools/tiling'),
-        fs         = require('fs'),
-        formidable = require('formidable')         
+var tiling   = require('../tools/tiling'),
+        fs   = require('fs'),
+        exec = require('child_process').exec;         
 
 var imageDir = __dirname+'/../images/'
 var rawImageDir = __dirname+'/../rawimages/'
@@ -205,24 +205,36 @@ exports.createimage = function(req, res) {
     if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
         // Write the file
         var tmpPath  = req.files.image.path;
-        var pngImage = tiling.convertToPng(tmpPath, rawImageDir);
+        tiling.convertToPng(tmpPath, rawImageDir, function(pngImage) {
         
-        tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
-            croppedImages.map( function (imageName) {
-                tiling.generateThumbs(imageName, thumbDir, function() {});
-            });
-            croppedImages.map(function (imageName) {
-                tiling.generateTiles(imageName, tileDir,  function() {});
-            });
-            croppedImages.map(function(imageName) {
-                // Build the metadata
-                var newImage = Image.build({
-                    filename:    imageName,
-                    description: rDescription,
-                    height:      rheight,
-                    width:       rwidth
+            tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
+                console.log("Cropped "+pngImage+" to "+croppedImages.length+" images");
+                croppedImages.map(function(imageName) {
+                    // Build the metadata
+                    var newImage = Image.build({
+                        filename:    imageName,
+                        description: rDescription,
+                        height:      rheight,
+                        width:       rwidth
+                    });
+                    newImage.save();
                 });
-                newImage.save();
+
+                // Spin up tile generator
+                // Spin up thumb generator
+
+                exec('./tools/generateTiles');
+                exec('./tools/generateThumbs');
+
+                /*croppedImages.map( function (imageName) {
+                    tiling.generateThumbs(imageName, thumbDir, function() {
+                        croppedImages.map(function (imageName) {
+                            tiling.generateTiles(imageName, tileDir,  function() {});
+                        });
+                    });
+                }); */
+                
+
             });
         });
 
