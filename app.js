@@ -20,7 +20,7 @@ app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser({
-    uploadDir: __dirname + '/rawimages'
+    uploadDir: __dirname + '/images'
   }));
   app.use(express.methodOverride());
   app.use(app.router);
