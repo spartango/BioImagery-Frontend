@@ -11,7 +11,7 @@ for image in `ls ../rawimages/`; do
      for (( xoffset = 0; xoffset < WIDTH-TARGET_WIDTH; xoffset+= TARGET_WIDTH )); do
          for (( yoffset = 0; yoffset < LENGTH-TARGET_HEIGHT; yoffset+= TARGET_HEIGHT )); do
             TARGETFILE="../images/$xoffset"_"$yoffset"_"$image"
-            if [[ ! -f  ]]; then
+            if [[ ! -f $TARGETFILE ]]; then
                 PARAMS="$TARGET_WIDTH"x"$TARGET_HEIGHT+$xoffset+$yoffset"
                 echo "Cropping $image with $PARAMS to ../images/$xoffset"_"$yoffset"_"$image"
                 convert "../rawimages/$image" -crop $PARAMS $TARGETFILE
