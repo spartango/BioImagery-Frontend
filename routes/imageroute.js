@@ -195,9 +195,6 @@ exports.rois = function(req, res){
 };
 
 exports.createimage = function(req, res) {
-    var form = new formidable.IncomingForm();
-    form.uploadDir = __dirname + '/rawimages'
-    console.log("Got an image upload, parsing");
     var name         = (req.files.image ? req.files.image.name : null);
     var rDescription = req.body.description;
     
@@ -206,7 +203,20 @@ exports.createimage = function(req, res) {
 
     if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
         // Write the file
-        console.log("Parsed upload contents");
+        var tmp_path = req.files.image.path;
+        // set where the file should actually exists - in this case it is in the "images" directory
+        var target_path = __dirname + '/images/' + req.files.image.name;
+
+        // TODO nicely format/cut up images/gen thumbs/gen tiles
+
+        // move the file from the temporary location to the intended location
+        fs.rename(tmp_path, target_path, function(err) {
+            if (err) throw err;
+            // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+            fs.unlink(tmp_path, function() {
+                if (err) console.log("Failed to move image to image path");
+            });
+        });
 
         // Build the metadata
         var newImage = Image.build({
@@ -223,7 +233,6 @@ exports.createimage = function(req, res) {
     } else {
         res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
     }
-    console.log('Complete');
 };
 
 exports.listimages = function(req, res) {
