@@ -198,13 +198,13 @@ exports.createimage = function(req, res) {
     var form = new formidable.IncomingForm();
     form.uploadDir = __dirname + '/rawimages'
     console.log("Got an image upload, parsing");
-    var name         = req.body.name
+    var name         = (req.files.image ? req.files.image.name : null);
     var rDescription = req.body.description;
     
     var rheight      = Number(req.body.height);
     var rwidth       = Number(req.body.width);
 
-    if(name && rheight != NaN && rwidth != NaN && req.files.image) {
+    if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
         // Write the file
         console.log("Parsed upload contents");
 
