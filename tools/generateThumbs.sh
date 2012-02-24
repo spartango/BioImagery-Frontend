@@ -2,7 +2,7 @@
 
 THUMB_WIDTH=330
 THUMB_HEIGHT=334
-
+THROTTE_PERIOD=5
 # Lock
 
 if [[ -f ./.thumb_lock ]]; then

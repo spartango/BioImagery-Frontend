@@ -6,6 +6,8 @@
 TILE_WIDTH=256
 TILE_LENGTH=256
 
+THROTTLE_PERIOD=5
+
 # Lock
 if [[ -f ./.tile_lock ]]; then
     echo "Tiles already being generated...directory locked"

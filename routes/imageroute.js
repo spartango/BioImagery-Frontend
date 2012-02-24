@@ -209,7 +209,9 @@ exports.createimage = function(req, res) {
         
             tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
                 console.log("Cropped "+pngImage+" to "+croppedImages.length+" images");
-                croppedImages.map(function(imageName) {
+                croppedImages.map(function(imagePath) {
+                    var parts     = imagePath.split("/");
+                    var imageName = parts[parts.length - 1]; 
                     // Build the metadata
                     var newImage = Image.build({
                         filename:    imageName,
@@ -223,8 +225,12 @@ exports.createimage = function(req, res) {
                 // Spin up tile generator
                 // Spin up thumb generator
 
-                exec('./tools/generateTiles');
-                exec('./tools/generateThumbs');
+                exec('./tools/generateTiles.sh', function(error, stdout, stderr) {
+                    console.log('Tiles -> '+stdout);
+                });
+                exec('./tools/generateThumb.sh', function(error, stdout, stderr) {
+                    console.log('Thumbs -> '+stdout);
+                });
 
                 /*croppedImages.map( function (imageName) {
                     tiling.generateThumbs(imageName, thumbDir, function() {

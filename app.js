@@ -83,4 +83,3 @@ app.get('/roi/:id/tags',       roiroutes.gettags);       // Get the tags associa
 app.post('/roi/:id/tag',       roiroutes.tagroi);        // Tags an ROI
 
 app.listen(8080);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
