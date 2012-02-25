@@ -444,10 +444,6 @@ function renderViewport(context) {
     // Render the image
     targetImage.render(context);
 
-    if(selectedRoi) {
-        drawRoiFocus(selectedRoi, context);
-    }
-
 }
 
 // Dirty global function
