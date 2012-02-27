@@ -37,10 +37,10 @@ app.configure('production', function(){
 });
 
 // Models
-var Image         = db.import(__dirname +'/../models/image');
-var Roi           = db.import(__dirname +'/../models/roi');
-var Tag           = db.import(__dirname +'/../models/tag');
-var ImageSequence = db.import(__dirname +'/../models/imagesequence');
+var Image         = db.import(__dirname +'/models/image');
+var Roi           = db.import(__dirname +'/models/roi');
+var Tag           = db.import(__dirname +'/models/tag');
+var ImageSequence = db.import(__dirname +'/models/imagesequence');
 
 // Relationships
 Image.hasMany(Roi);
@@ -61,10 +61,11 @@ db.sync({force: false}).on('success', function() {
 
 // Routes
 
-var imageroutes = require(__dirname + '/routes/imageroute');
-var roiroutes   = require(__dirname + '/routes/roiroute');
-var tagroutes   = require(__dirname + '/routes/tagroute');
-var routes      = require(__dirname + '/routes/index');
+var imageroutes    = require(__dirname + '/routes/imageroute');
+var sequenceroutes = require(__dirname + '/routes/imagesequenceroute');
+var roiroutes      = require(__dirname + '/routes/roiroute');
+var tagroutes      = require(__dirname + '/routes/tagroute');
+var routes         = require(__dirname + '/routes/index');
 
 console.log("Loaded Routes");
 
