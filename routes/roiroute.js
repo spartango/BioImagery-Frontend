@@ -14,6 +14,28 @@ Roi.hasMany(Tag);
 Tag.hasMany(Roi);
 
 /*
+ * GET get roi info
+ */ 
+
+exports.roi = function(req, res) {
+
+    var roiId = req.params.id;
+
+    if(roiId) {
+        Roi.find(Number(roiId)).on('success', function(roi) {
+            if(roi) {
+                var json = JSON.stringify(Roi.dictify(target));
+                res.send(json, 200);
+            } else {
+                res.render('404', {title: '404 Bad Roi'});
+            }
+        });
+    } else {
+        res.send('Bad Param', 400);
+    }
+}
+
+/*
  * POST create a new roi 
  */
 

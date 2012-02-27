@@ -58,7 +58,7 @@ exports.createtag = function(req, res) {
             res.send(''+newTag.id, 200);
         });
 
-    } else{
+    } else {
         res.send('Bad Param', 400);
     }
 

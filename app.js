@@ -81,5 +81,6 @@ app.post('/roi/create',        roiroutes.createroi);     // Creates an ROI
 app.post('/roi/:id/update',    roiroutes.updateroi);     // Creates a ROI
 app.get('/roi/:id/tags',       roiroutes.gettags);       // Get the tags associated with an ROI
 app.post('/roi/:id/tag',       roiroutes.tagroi);        // Tags an ROI
+app.get('/roi/:id',            roiroutes.roi);           // Gets info about a single ROI
 
 app.listen(8080);
