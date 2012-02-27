@@ -52,23 +52,26 @@ exports.listsequences = function(req, res) {
 }
 
 exports.createseq = function(req, res) {
-    var delta       = req.body.delta;
-    var imageIds    = req.body.images;
-    var description = req.body.description;
+    var rdelta       = req.body.delta;
+    var imageIds     = req.body.images;
+    var rdescription = req.body.description;
 
     if(delta && imageIds && imageIds.length > 0) {
-        Image.findAll({ where: {id: imageIds} }).success(function(images){
+        Image.findAll({ where: {id: imageIds} }).on('success', function(images){
+
             // Make a new Sequence
             var newSeq = ImageSequence.build({
-                delta: delta, 
-                description: description, 
-                length: imageIds.length
+                delta: rdelta, 
+                description: rdescription, 
+                count: imageIds.length
             });
 
-            // Attach the target images
-            newSeq.setImages(images).success(function() {
-                console.log('New Sequence'+newSeq.id);
-                res.send(''+newSeq.id, 200);
+            newSeq.save().success(function() {
+                // Attach the target images
+                newSeq.setImages(images).success(function() {
+                    console.log('New Sequence '+newSeq.id);
+                    res.send(''+newSeq.id, 200);
+                });
             });
         });
     } else {
