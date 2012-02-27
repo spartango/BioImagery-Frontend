@@ -50,3 +50,28 @@ exports.listsequences = function(req, res) {
         }
     });
 }
+
+exports.createseq = function(req, res) {
+    var delta       = req.body.delta;
+    var imageIds    = req.body.images;
+    var description = req.body.description;
+
+    if(delta && imageIds && imageIds.length > 0) {
+        Image.findAll({ where: {id: imageIds} }).success(function(images){
+            // Make a new Sequence
+            var newSeq = ImageSequence.build({
+                delta: delta, 
+                description: description, 
+                length: imageIds.length
+            });
+
+            // Attach the target images
+            newSeq.setImages(images).success(function() {
+                console.log('New Sequence'+newSeq.id);
+                res.send(''+newSeq.id, 200);
+            });
+        });
+    } else {
+        res.send('Bad Param', 400);
+    }
+}

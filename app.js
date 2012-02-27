@@ -97,7 +97,6 @@ app.get('/roi/:id',            roiroutes.roi);            // Gets info about a s
 // Sequence related routes
 app.get('/imageseq',           sequenceroutes.listsequences); // Gets a listing of all sequences
 app.get('/imageseq/:id',       sequenceroutes.sequence);  // Get info on a single sequence
-
-
+app.post('/imageseq/:id',      sequenceroutes.createseq);  // Get info on a single sequence
 
 app.listen(8080);
