@@ -19,9 +19,34 @@ Roi.belongsTo(Tag);
 
 exports.sequence = function (req, res) {
     // body...
-    // TODO
+    var seqId = req.params.id;
+
+    if(seqId) {
+        ImageSequence.find(Number(seqId)).on('success', function(seq) {
+            if(seq) {
+                var json = JSON.stringify(ImageSequence.dictify(target));
+                res.send(json, 200);
+            } else {
+                res.render('404', {title: '404 Bad Sequence'});
+            }
+        });
+    } else {
+        res.send('Bad Param', 400);
+    }
+     
 }
 
 exports.listsequences = function(req, res) {
-    // TODO
+    ImageSequence.findAll().on('success', function(imageseqs) {
+        if(imageseqs) {
+            // Generate an ID set
+            var imageSeqSet = imageseqs.map(ImageSequence.dictify);
+            // Send it along
+            res.send(JSON.stringify(imageSeqSet), 200);
+        } else {
+            // Error condition
+            // Send a 404 back
+            res.render('404', {title: '404: Couldnt get Image Set'});
+        }
+    });
 }
