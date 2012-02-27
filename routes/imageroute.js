@@ -2,25 +2,29 @@ var tiling   = require('../tools/tiling'),
         fs   = require('fs'),
         exec = require('child_process').exec;         
 
-var imageDir = __dirname+'/../images/'
+var imageDir    = __dirname+'/../images/'
 var rawImageDir = __dirname+'/../rawimages/'
-var tileDir  = __dirname+'/../tiles/'
-var thumbDir = __dirname+'/../thumbs/'
+var tileDir     = __dirname+'/../tiles/'
+var thumbDir    = __dirname+'/../thumbs/'
 
 var Sequelize = require('sequelize')
 
 var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 
 // Models
-var Image = db.import(__dirname +'/../models/image');
-var Roi   = db.import(__dirname +'/../models/roi');
-var Tag   = db.import(__dirname +'/../models/tag');
+var Image         = db.import(__dirname +'/../models/image');
+var Roi           = db.import(__dirname +'/../models/roi');
+var Tag           = db.import(__dirname +'/../models/tag');
+var ImageSequence = db.import(__dirname +'/../models/imagesequence');
 
 // Relationships
 Image.hasMany(Roi);
+Image.belongsTo(ImageSequence);
+ImageSequence.hasMany(Image);
 Roi.belongsTo(Image);
 Roi.hasMany(Tag);
 Tag.hasMany(Roi);
+Roi.belongsTo(Tag);
 
 /*
  * GET a raw image
