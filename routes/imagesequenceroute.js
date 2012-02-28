@@ -24,7 +24,7 @@ exports.sequence = function (req, res) {
     if(seqId) {
         ImageSequence.find(Number(seqId)).on('success', function(seq) {
             if(seq) {
-                var json = JSON.stringify(ImageSequence.dictify(target));
+                var json = JSON.stringify(ImageSequence.dictify(seq));
                 res.send(json, 200);
             } else {
                 res.render('404', {title: '404 Bad Sequence'});
