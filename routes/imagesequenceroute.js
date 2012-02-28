@@ -24,8 +24,13 @@ exports.sequence = function (req, res) {
     if(seqId) {
         ImageSequence.find(Number(seqId)).on('success', function(seq) {
             if(seq) {
-                var json = JSON.stringify(ImageSequence.dictify(seq));
-                res.send(json, 200);
+                // Get the imageids
+                var dict = ImageSequence.dictify(seq);
+                seq.getImages().success(function(images) {
+                    dict['images'] = images.map(function(image) { return image.id; });
+                    var json = JSON.stringify(dict);
+                    res.send(json, 200);
+                });
             } else {
                 res.render('404', {title: '404 Bad Sequence'});
             }
