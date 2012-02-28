@@ -56,7 +56,7 @@ exports.createseq = function(req, res) {
     var imageIds     = req.body.images;
     var rdescription = req.body.description;
 
-    if(delta && imageIds && imageIds.length > 0) {
+    if(rdelta && imageIds && imageIds.length > 0) {
         Image.findAll({ where: {id: imageIds} }).on('success', function(images){
 
             // Make a new Sequence
