@@ -1,0 +1,37 @@
+!!! 5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/image.css')
+    link(rel='stylesheet', href='http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css')
+
+    body
+        #pghead.page-header
+            #pgtitle.titlebar
+                a(href='/')
+                    h1 Upload Image
+        #app.container
+            #uploader.content
+                form.well(action="/image/create", method="post", enctype="multipart/form-data")
+                    #fields.clearfix
+                        label Width 
+                        #width.input
+                            input.input-min(type='text', name="width", placeholder="in pixels")
+                        br
+                        label Height
+                        #height.input
+                            input.input-min(type='text', name="height", placeholder="in pixels")
+                        br
+                        label Description
+                        #description.input
+                            input.input-xlarge(type='text', name="description", placeholder="About the image")
+                        br
+                        label
+                        #file.input
+                            input(type="file", name="image")
+                        br
+                        label
+                        #submit.input
+                            input.btn(type="submit", value="Upload")
+

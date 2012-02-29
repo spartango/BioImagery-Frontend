@@ -3,15 +3,20 @@ var Sequelize = require('sequelize')
 var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 
 // Models
-var Image = db.import(__dirname +'/../models/image');
-var Roi   = db.import(__dirname +'/../models/roi');
-var Tag   = db.import(__dirname +'/../models/tag');
+var Image         = db.import(__dirname +'/../models/image');
+var Roi           = db.import(__dirname +'/../models/roi');
+var Tag           = db.import(__dirname +'/../models/tag');
+var ImageSequence = db.import(__dirname +'/../models/imagesequence');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+Image.belongsTo(ImageSequence);
+ImageSequence.hasMany(Image);
+Roi.belongsTo(Image);
 Roi.hasMany(Tag);
 Tag.hasMany(Roi);
+Roi.belongsTo(Tag);
+
 
 exports.tags = function(req, res) {
     // Get all the tags from the database
@@ -58,7 +63,7 @@ exports.createtag = function(req, res) {
             res.send(''+newTag.id, 200);
         });
 
-    } else{
+    } else {
         res.send('Bad Param', 400);
     }
 

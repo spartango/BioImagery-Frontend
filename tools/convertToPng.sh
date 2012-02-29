@@ -1,6 +1,10 @@
 #!/bin/sh
 
 for image in `ls ../rawimages`; do
-    echo "converting $image to ${image/%tif/png}"
-    convert "../rawimages/$image" "../images/${image/%tif/png}"
+    TARGETFILE="../rawimages/${image/%tif/png}"
+    if [[ ! -f $TARGETFILE ]]; then
+        echo "converting $image to ${image/%tif/png}"
+        convert "../rawimages/$image" $TARGETFILE
+        rm "../rawimages/$image"
+    fi
 done 

@@ -1,24 +1,30 @@
-var tiling = require('../tools/tiling'),
-        fs = require('fs')
+var tiling   = require('../tools/tiling'),
+        fs   = require('fs'),
+        exec = require('child_process').exec;         
 
-var imageDir = __dirname+'/../images/'
-var tileDir  = __dirname+'/../tiles/'
-var thumbDir = __dirname+'/../thumbs/'
+var imageDir    = __dirname+'/../images/'
+var rawImageDir = __dirname+'/../rawimages/'
+var tileDir     = __dirname+'/../tiles/'
+var thumbDir    = __dirname+'/../thumbs/'
 
 var Sequelize = require('sequelize')
 
 var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 
 // Models
-var Image = db.import(__dirname +'/../models/image');
-var Roi   = db.import(__dirname +'/../models/roi');
-var Tag   = db.import(__dirname +'/../models/tag');
+var Image         = db.import(__dirname +'/../models/image');
+var Roi           = db.import(__dirname +'/../models/roi');
+var Tag           = db.import(__dirname +'/../models/tag');
+var ImageSequence = db.import(__dirname +'/../models/imagesequence');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+Image.belongsTo(ImageSequence);
+ImageSequence.hasMany(Image);
+Roi.belongsTo(Image);
 Roi.hasMany(Tag);
 Tag.hasMany(Roi);
+Roi.belongsTo(Tag);
 
 /*
  * GET a raw image
@@ -27,18 +33,18 @@ Tag.hasMany(Roi);
 exports.image = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Get the raw file from the disk
-                fs.readFile(imageDir + image.filename, 
+                fs.readFile(imageDir + image.filename,
                     function(err, data) {
                         if(err) {
                             // Error Condition
                             res.render('404', {title: '404 Image File Not Found'});
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
@@ -50,7 +56,7 @@ exports.image = function(req, res){
                 res.render('404', {title: '404 Image Record Not Found'});
             }
 
-        });  
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -68,20 +74,20 @@ exports.tile = function(req, res){
     var xOffset = tiling.TILE_WIDTH * Math.floor(req.param('x') / tiling.TILE_WIDTH);
     var yOffset = tiling.TILE_LENGTH * Math.floor(req.param('y') / tiling.TILE_LENGTH);
     // Assert that the image offsets are safe
-    // Floor the image offsets to the nearest bin 
+    // Floor the image offsets to the nearest bin
     if(imageId && xOffset != null && yOffset != null) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var tilename = tiling.generateTileName(xOffset, yOffset, image.filename);
 
-                // Get the tile from disk 
-                fs.readFile(tileDir + tilename, 
+                // Get the tile from disk
+                fs.readFile(tileDir + tilename,
                     function(err, data) {
                         if(err) {
                             // Error Condition
                             res.send('', 404);
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
@@ -92,13 +98,13 @@ exports.tile = function(req, res){
                 res.send('', 404);
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
-    
+
 };
 
 /*
@@ -109,20 +115,20 @@ exports.thumb = function(req, res){
     // Get the image ID
     var imageId = req.params.id;
    // Assert that the image offsets are safe
-    // Floor the image offsets to the nearest bin 
+    // Floor the image offsets to the nearest bin
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 var thumbname = 'thumb_'+image.filename;
 
-                // Get the tile from disk 
-                fs.readFile(thumbDir + thumbname, 
+                // Get the tile from disk
+                fs.readFile(thumbDir + thumbname,
                     function(err, data) {
                         if(err) {
                             // Error Condition
                             res.send('', 404);
                         } else {
-                            res.writeHead(200, {'Content-Type': 'image/tiff' });
+                            res.writeHead(200, {'Content-Type': 'image/png' });
                             res.end(data, 'binary');
                         }
                     }
@@ -133,17 +139,17 @@ exports.thumb = function(req, res){
                 res.send('', 404);
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
-    
+
 };
 
 /*
- * GET rois 
+ * GET rois
  */
 
 exports.rois = function(req, res){
@@ -153,17 +159,17 @@ exports.rois = function(req, res){
     var yOffset = req.param('y');
     var width   = req.param('width');
     var height  = req.param('height');
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
                 // Ask the db for all ROIs on a given image
                 image.getRois().on('success', function(rois){
-                    var targets; 
+                    var targets;
                     // If  bounds are requested, filter by the bounding params
-                    if(xOffset      != null 
-                        && yOffset  != null 
-                        && width    != null 
+                    if(xOffset      != null
+                        && yOffset  != null
+                        && width    != null
                         && height   != null) {
                         targets = rois.filter(function(roi) {
                             return roi.x >= xOffset
@@ -179,14 +185,14 @@ exports.rois = function(req, res){
                     var json = JSON.stringify(targets.map(Roi.dictify));
                     res.send(json, 200);
                 });
-                    
+
             } else {
                 res.render('404', {title: '404'});
             }
 
-        });  
+        });
     } else {
-        // param Error Condition 
+        // param Error Condition
         // Send a 400 back
         res.send('Bad Params', 400);
     }
@@ -194,32 +200,73 @@ exports.rois = function(req, res){
 };
 
 exports.createimage = function(req, res) {
-    //Test: Make some initial images
-    var name = req.body.name;
+    var name         = (req.files.image ? req.files.image.name : null);
     var rDescription = req.body.description;
-    var rheight = req.body.height;
-    var rwidth = req.body.width;
-    if(name && rheight && rwidth) {
-        var newImage = Image.build({
-            filename: name,
-            description: rDescription,
-            height: rheight,
-            width: rwidth
-        })
-        newImage.save().on('success', function() {
-            res.send("Test Saved OK", 200);
-        }).on('failure', function(error){
-            res.send("Failed to Save", 500);
+    
+    var rheight      = Number(req.body.height);
+    var rwidth       = Number(req.body.width);
+
+    if(name && rheight != NaN && rwidth != NaN  && req.files.image) {
+        // Write the file
+        var tmpPath  = req.files.image.path;
+        tiling.convertToPng(tmpPath, rawImageDir, function(pngImage) {
+        
+            tiling.cropToSize(pngImage, imageDir, function(croppedImages) {
+                console.log("Cropped "+pngImage+" to "+croppedImages.length+" images");
+                croppedImages.map(function(imagePath) {
+                    var parts     = imagePath.split("/");
+                    var imageName = parts[parts.length - 1]; 
+                    // Build the metadata
+                    var newImage = Image.build({
+                        filename:    imageName,
+                        description: rDescription,
+                        height:      rheight,
+                        width:       rwidth
+                    });
+                    newImage.save();
+                });
+
+                // Spin up tile generator
+                // Spin up thumb generator
+
+                exec('./tools/generateTiles.sh', function(error, stdout, stderr) {
+                    console.log('Tiles -> '+stdout);
+                });
+                exec('./tools/generateThumb.sh', function(error, stdout, stderr) {
+                    console.log('Thumbs -> '+stdout);
+                });
+
+                /*croppedImages.map( function (imageName) {
+                    tiling.generateThumbs(imageName, thumbDir, function() {
+                        croppedImages.map(function (imageName) {
+                            tiling.generateTiles(imageName, tileDir,  function() {});
+                        });
+                    });
+                }); */
+                
+
+            });
         });
+
+        res.render('upload', {title: 'Upload Image', previous: 'Successful Upload'});
     } else {
-        res.send("Bad Params", 400);
+        res.render('upload', {title: 'Upload Image', previous: 'Upload was missing info'});
     }
-    // TODO setup the form
 };
 
-exports.showimages = function(req, res) {
-    //TODO Render the images page
-    res.render('404', {title: '404: Listing Not Found'});
+exports.listimages = function(req, res) {
+    Image.findAll().on('success', function(images) {
+        if(images) {
+            // Generate an ID set
+            var imageSet = images.map(Image.dictify);
+            // Send it along
+            res.send(JSON.stringify(imageSet), 200);
+        } else {
+            // Error condition
+            // Send a 404 back
+            res.render('404', {title: '404: Couldnt get Image Set'});
+        }
+    });
 };
 
 exports.imageview = function(req, res) {
@@ -230,8 +277,8 @@ exports.imageview = function(req, res) {
                 // Get the imagecount
                 Image.count().on('success', function(count) {
                     res.render('image', {
-                        title: 'Image', 
-                        imageId: imageId, 
+                        title: 'Image',
+                        imageId: imageId,
                         imageName: image.filename,
                         imageDescription: image.description,
                         imageCount: count
@@ -243,7 +290,7 @@ exports.imageview = function(req, res) {
                 res.render('404', {title: '404: Image not Found'});
             }
 
-        }); 
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -254,7 +301,7 @@ exports.imageview = function(req, res) {
 exports.imageinfo = function(req, res) {
     // Get the image ID
     var imageId = req.params.id;
-    
+
     if(imageId) {
         Image.find(Number(imageId)).on('success', function(image) {
             if(image) {
@@ -267,7 +314,7 @@ exports.imageinfo = function(req, res) {
                 res.render('404', {title: '404: Image not Found'});
             }
 
-        });  
+        });
     } else {
         // param Error condition
         // Send a 400 back
@@ -284,7 +331,7 @@ exports.overview = function(req, res){
                 var imageSet = images.map(function(image) {
                     return image.id;
                 });
-                res.render('overview', {title: 'Overview', 
+                res.render('overview', {title: 'Overview',
                                         images: imageSet });
                 // Send it along
             } else {
@@ -294,4 +341,9 @@ exports.overview = function(req, res){
             }
 
     });
+};
+
+exports.newimage = function(req, res) {
+    // Provides a form for uploading
+    res.render('upload', {title: 'Upload Image'});
 };

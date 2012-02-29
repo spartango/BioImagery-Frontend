@@ -1,5 +1,5 @@
-TILE_WIDTH  = 400;
-TILE_LENGTH = 400;
+TILE_WIDTH  = 256;
+TILE_LENGTH = 256;
 
 // Icon prep
 ICON_WIDTH  = 22;
@@ -36,7 +36,7 @@ var Tile = function(x, y, parent) {
 
     };
 
-    this.render = function(context) { 
+    this.render = function(context) {
         // Check if we have the image
         if(this.image) {
             // Calculate where it ought to be in the canvas
@@ -45,7 +45,7 @@ var Tile = function(x, y, parent) {
             //console.log("Rendering tile @ "+xOffset+", "+yOffset);
             // Move it to position
             context.drawImage(this.image, xOffset, yOffset);
-        } 
+        }
     }
 };
 
@@ -65,6 +65,8 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.highlight  = false;
     this.resizing   = false;
 
+    this.isnew      = false;
+
     this.color      = {
         red:   0,
         green: 255,
@@ -76,22 +78,22 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         request.open('GET', '/roi/'+this.id+'/tags', false);
         request.send();
 
-        this.tagSet = eval('('+request.responseText+')'); 
+        this.tagSet = eval('('+request.responseText+')');
         console.log("Got ROI tags "+this.tagSet.length);
     };
 
     this.applyTag = function(tagName) {
-        // Check if tag exists 
+        // Check if tag exists
         var tagId = targetImage.idForTag(tagName);
         if(!tagId) {
             var createRequest = new XMLHttpRequest();
             var params = 'name='+tagName;
-            
+
             createRequest.open('POST', '/tag/create', false);
             createRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             createRequest.send(params);
             tagId = createRequest.responseText;
-            this.parent.tagMap.push({name: tagName, 
+            this.parent.tagMap.push({name: tagName,
                                      id: tagId});
             console.log('created new tag '+tagId);
         }
@@ -113,21 +115,21 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
 
         request.send(params);
     }
-    
+
     this.save = function() {
         var request = new XMLHttpRequest();
 
         var target = this;
         if(this.id){
             // Updating an existing ROI
-            var params = 'x='+this.x 
+            var params = 'x='+this.x
                          +'&y='+this.y
                          +'&width='+this.width
                          +'&height='+this.height;
 
             request.open('POST', '/roi/'+this.id+'/update', true);
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            
+
             request.onreadystatechange = function() {
                 if(request.readyState == 4) {
                     target.saved = true;
@@ -139,7 +141,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             request.send(params);
         } else {
             // Creating a new ROI
-            var params = 'x='+this.x 
+            var params = 'x='+this.x
                          +'&y='+this.y
                          +'&width='+this.width
                          +'&height='+this.height
@@ -147,7 +149,7 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
 
             request.open('POST', '/roi/create', true);
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            
+
             request.onreadystatechange = function() {
                 if(request.readyState == 4) {
                     target.id = request.responseText;
@@ -165,9 +167,10 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
         var xCoord = this.x - parent.xOffset;
         var yCoord = this.y - parent.yOffset;
         // Check that we should render
-        if(xCoord + this.width >= 0 
+        if(this.isnew
+            && xCoord + this.width >= 0
             && yCoord + this.height >= 0
-            && xCoord < context.canvas.width 
+            && xCoord < context.canvas.width
             && yCoord < context.canvas.height){
             // TODO Select a color
             context.strokeStyle = 'rgb('+this.color.red+',' + this.color.green + ',' +this.color.blue + ')';
@@ -177,26 +180,26 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
 
             // Draw the icon for handle
             context.drawImage((!this.saved ? saveIcon :
-                                        (this.highlight ? selectedHandleIcon 
+                                        (this.highlight ? selectedHandleIcon
                                             : handleIcon)),
-                                xCoord - ICON_WIDTH / 2, 
-                                yCoord - ICON_HEIGHT / 2, 
+                                xCoord - ICON_WIDTH / 2,
+                                yCoord - ICON_HEIGHT / 2,
                                 ICON_WIDTH, ICON_HEIGHT);
 
             if(this.highlight){
                 context.drawImage(selectedHandleIcon,
-                                    xCoord - ICON_WIDTH / 2 + this.width, 
-                                    yCoord - ICON_HEIGHT / 2 + this.height, 
+                                    xCoord - ICON_WIDTH / 2 + this.width,
+                                    yCoord - ICON_HEIGHT / 2 + this.height,
                                     ICON_WIDTH, ICON_HEIGHT);
             }
             if(!this.id) {
                 // Draw the icon for delete
-                context.drawImage(removeIcon, 
-                                      xCoord - ICON_WIDTH / 2 + this.width, 
-                                      yCoord - ICON_HEIGHT / 2, 
+                context.drawImage(removeIcon,
+                                      xCoord - ICON_WIDTH / 2 + this.width,
+                                      yCoord - ICON_HEIGHT / 2,
                                       ICON_WIDTH, ICON_HEIGHT);
             }
-         
+
         }
     };
 
@@ -204,34 +207,31 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
     this.onSelect = function(xpos, ypos) {
         // Check for left corner
         // if unsaved, save
-        if(!this.saved 
-           && xpos >= -ICON_WIDTH / 2 
-           && xpos <= ICON_WIDTH / 2 
-           && ypos >= -ICON_HEIGHT / 2 
+        if(!this.saved
+           && xpos >= -ICON_WIDTH / 2
+           && xpos <= ICON_WIDTH / 2
+           && ypos >= -ICON_HEIGHT / 2
            && ypos <= ICON_HEIGHT / 2) {
             this.save();
             return false;
         }
 
         // Check for upper right corner
-        else if(xpos >= this.width - ICON_WIDTH / 2 
-             && xpos <= this.width + ICON_WIDTH / 2 
-             && ypos >= -ICON_HEIGHT / 2 
+        else if(xpos >= this.width - ICON_WIDTH / 2
+             && xpos <= this.width + ICON_WIDTH / 2
+             && ypos >= -ICON_HEIGHT / 2
              && ypos <= ICON_HEIGHT / 2) {
 
             if(!this.id) {
                 // Delete
                 this.parent.roiSet.splice(this.parent.roiSet.indexOf(this), 1);
-            } /*else {
-                //Tag
-                showInfo(this);
-            } */
+            }
             return false;
-        } 
+        }
         // Lower right corner
-        else if(xpos >= this.width - ICON_WIDTH  
-             && xpos <= this.width + ICON_WIDTH 
-             && ypos >= this.height - ICON_HEIGHT 
+        else if(xpos >= this.width - ICON_WIDTH
+             && xpos <= this.width + ICON_WIDTH
+             && ypos >= this.height - ICON_HEIGHT
              && ypos <= this.height + ICON_HEIGHT) {
 
             // resizing mode
@@ -243,10 +243,10 @@ var Roi = function(x, y, width, height, confidence, id, parent) {
             // Move mode
             return (xpos >= -ICON_WIDTH
                  && xpos <= ICON_WIDTH
-                 && ypos >= -ICON_HEIGHT 
-                 && ypos <= ICON_HEIGHT); 
+                 && ypos >= -ICON_HEIGHT
+                 && ypos <= ICON_HEIGHT);
         }
-        
+
     };
 
     this.onDrag = function(deltaX, deltaY) {
@@ -281,7 +281,7 @@ var ViewedImage = function(id) {
         var request = new XMLHttpRequest();
         request.open('GET', '/image/'+this.id+'/describe', false);
         request.send();
-        var imageInfo = eval('('+request.responseText+')'); // Dangerous. 
+        var imageInfo = eval('('+request.responseText+')'); // Dangerous.
         if(imageInfo) {
             this.width  = imageInfo.width;
             this.height = imageInfo.height;
@@ -295,23 +295,23 @@ var ViewedImage = function(id) {
         var request = new XMLHttpRequest();
         request.open('GET', '/image/'+this.id+'/rois', false);
         request.send();
-        var rois = eval('('+request.responseText+')'); // Dangerous. 
+        var rois = eval('('+request.responseText+')'); // Dangerous.
         if(rois) {
             // Build objects
             for(var i = 0; i<rois.length; i++) {
                 var t_roi = rois[i];
-                var newRoi = new Roi(t_roi.x, 
-                                    t_roi.y, 
-                                    t_roi.width, 
-                                    t_roi.height, 
-                                    t_roi.confidence, 
+                var newRoi = new Roi(t_roi.x,
+                                    t_roi.y,
+                                    t_roi.width,
+                                    t_roi.height,
+                                    t_roi.confidence,
                                     t_roi.id,
                                     this);
                 newRoi.saved = true;
                 this.roiSet.push(newRoi);
             }
             console.log("Got ROIs "+this.roiSet.length);
-        } 
+        }
     };
 
     this.getTags = function() {
@@ -321,7 +321,7 @@ var ViewedImage = function(id) {
         var target = this;
         request.onreadystatechange = function() {
             if(request.readyState == 4) {
-                target.tagMap = eval('('+request.responseText+')'); 
+                target.tagMap = eval('('+request.responseText+')');
                 console.log("Got tags "+target.tagMap.length);
             }
         };
@@ -329,13 +329,13 @@ var ViewedImage = function(id) {
 
     this.renderTiles = function(context) {
         this.tileSet.map(function(tile) {
-           tile.render(context); 
+           tile.render(context);
         });
     };
 
     this.renderRois = function(context) {
         this.roiSet.map(function(roi) {
-           roi.render(context); 
+           roi.render(context);
         });
     };
 
@@ -377,13 +377,15 @@ var ViewedImage = function(id) {
     this.roiAt = function (xpos, ypos) {
         for(var i = 0; i < this.roiSet.length; i++) {
             var t_roi = this.roiSet[i];
-            if(((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
-               && ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 - this.yOffset) 
+            if(t_roi.isnew
+               &&
+               (((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 + t_roi.width - this.xOffset)
+               && ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 - this.yOffset)
                     || (ypos >= t_roi.y + t_roi.height - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + t_roi.height + ICON_HEIGHT/2 - this.yOffset)))
                ||
                ((ypos >= t_roi.y - ICON_HEIGHT/2 - this.yOffset && ypos < t_roi.y + ICON_HEIGHT/2 + t_roi.height - this.yOffset)
-               && ((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 - this.xOffset) 
-                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset)))) {
+               && ((xpos >= t_roi.x - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + ICON_WIDTH/2 - this.xOffset)
+                    || (xpos >= t_roi.x + t_roi.width - ICON_WIDTH/2 - this.xOffset && xpos < t_roi.x + t_roi.width + ICON_WIDTH/2 - this.xOffset))))) {
                    return t_roi;
                }
         }
@@ -395,7 +397,7 @@ var ViewedImage = function(id) {
 // View Controls
 
 function clearCanvas(context) {
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height); 
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 function markRoiButtonReady() {
@@ -441,11 +443,24 @@ function renderViewport(context) {
     clearCanvas(context);
     // Render the image
     targetImage.render(context);
+
 }
 
 // Dirty global function
 function redraw() {
     renderViewport(viewportContext);
+}
+
+function deselectRoi(targetRoi) {
+    hideRoiInfo();
+    targetRoi.resizing  = false;
+    targetRoi.highlight = false;
+}
+
+function selectRoi(newRoi) {
+    newRoi.highlight = true;
+    newRoi.resizing  = true;
+    showInfo(newRoi);
 }
 
 function renderRoiInfo(targetRoi) {
@@ -469,8 +484,21 @@ function renderRoiInfo(targetRoi) {
     $(selectedRoiInfo).show('normal');
 }
 
-function hideRoiInfo(){
+function hideRoiInfo() {
     $(selectedRoiInfo).hide('normal');
+}
+
+function drawRoiFocus(targetRoi, context) {
+    context.fillStyle = "rgba(255, 255, 255, 0.5)";
+
+    // Unfocus surround
+    var xCoord = targetRoi.x - targetImage.xOffset;
+    var yCoord = targetRoi.y - targetImage.yOffset;
+
+    context.fillRect(0, 0, xCoord, context.canvas.height);
+    context.fillRect(xCoord + targetRoi.width, 0, context.canvas.width - xCoord, context.canvas.height);
+    context.fillRect(xCoord, 0, targetRoi.width, yCoord);
+    context.fillRect(xCoord, yCoord + targetRoi.height, targetRoi.width, context.canvas.height);
 }
 
 function onViewportMoved(deltaX, deltaY) {
@@ -480,7 +508,7 @@ function onViewportMoved(deltaX, deltaY) {
         // Adjust the offsets
         refreshTiles();
         // render the Viewport
-        renderViewport(viewportContext);
+        redraw();
     }
 }
 
@@ -512,42 +540,39 @@ function mouseDown(event) {
     var prevRoi = selectedRoi;
 
     if(viewportMode == VIEWPORT_DRAW) {
-        var newRoi = new Roi(getRelativeX(event) + targetImage.xOffset, 
-                             getRelativeY(event) + targetImage.yOffset, 
+        selectedRoi = new Roi(getRelativeX(event) + targetImage.xOffset,
+                             getRelativeY(event) + targetImage.yOffset,
                              0, 0, 0, null, targetImage);
-        targetImage.roiSet.push(newRoi);
+        targetImage.roiSet.push(selectedRoi);
+
         // Mark it selected
-        selectedRoi = newRoi;
-        selectedRoi.highlight = true;
-        selectedRoi.resizing = true;
-        
+        selectRoi(selectedRoi);
+
+        selectedRoi.isnew = true;
+
         // Starting a drag
         viewportDragging = true;
         dragStartX = event.clientX;
         dragStartY = event.clientY;
-        document.body.style.cursor = 'crosshair';
 
     } else if(viewportMode == VIEWPORT_PAN) {
-        selectedRoi = targetImage.roiAt(getRelativeX(event), 
+        selectedRoi = targetImage.roiAt(getRelativeX(event),
                                         getRelativeY(event));
         viewportDragging = true;
 
         if(prevRoi && selectedRoi != prevRoi) {
-            hideRoiInfo();
-            prevRoi.resizing  = false;
-            prevRoi.highlight = false;
-            prevRoi           = null;
-        } 
+            deselectRoi(prevRoi);
+        }
 
         if(selectedRoi){
-            selectedRoi.highlight = true;
-            showInfo(selectedRoi);
+            selectRoi(selectedRoi);
 
             // dispatch event with coords relative to it
             viewportDragging = selectedRoi.onSelect(getRelativeX(event) - (selectedRoi.x - targetImage.xOffset),
                                                     getRelativeY(event) - (selectedRoi.y - targetImage.yOffset));
-            redraw();
-        } 
+        }
+
+        redraw();
 
         if(viewportDragging) {
             dragStartX = event.clientX;
@@ -555,13 +580,28 @@ function mouseDown(event) {
             document.body.style.cursor = 'all-scroll';
         }
     }
-    
+
     // Don't do the stupid select thing in the canvas
     event.preventDefault();
 }
 
+function keyShortcut(event) {
+    if(event.keyCode == 110 && document.activeElement != newTagName) {
+        penDown();
+    }
+}
+
 function mouseUp(event) {
     viewportDragging = false;
+
+    if(selectedRoi && !selectedRoi.saved) {
+        var targetRoi = selectedRoi;
+        setTimeout(function(){
+            if(!targetRoi.saved)
+                targetRoi.save();
+        }, 10000);
+    }
+
     penUp();
     document.body.style.cursor = 'default';
 }
@@ -577,7 +617,7 @@ function mouseMove(event) {
         }
 
         dragStartX = event.clientX;
-        dragStartY = event.clientY;            
+        dragStartY = event.clientY;
         redraw();
     }
     event.preventDefault();
@@ -588,6 +628,9 @@ function mouseMove(event) {
 function penUp() {
     if(viewportMode == VIEWPORT_DRAW) {
         viewportMode = VIEWPORT_PAN;
+
+        document.body.style.cursor = 'default';
+
         markRoiButtonReady();
     }
 }
@@ -595,7 +638,17 @@ function penUp() {
 function penDown() {
     if(viewportMode == VIEWPORT_PAN) {
         viewportMode = VIEWPORT_DRAW;
+
+        document.body.style.cursor = 'crosshair';
+
         markRoiButtonUse();
+
+        if(selectedRoi) {
+            deselectRoi(selectedRoi);
+            selectedRoi = null;
+            redraw();
+        }
+
     } else {
         penUp();
     }
@@ -610,7 +663,28 @@ function showInfo(targetRoi) {
         // Prep the view
         renderRoiInfo(targetRoi);
     }
+}
 
+function showRois() {
+    targetImage.roiSet.map(function(roi) {
+        roi.isnew = true;
+    });
+
+    document.getElementById('roiShowButton').onclick = function (event) { hideRois(); };
+    document.getElementById("roiShowButton").classList.remove('primary');
+    document.getElementById("roiShowButton").classList.add('danger');
+    redraw();
+}
+
+function hideRois() {
+    targetImage.roiSet.map(function(roi) {
+        roi.isnew = false;
+    });
+
+    document.getElementById('roiShowButton').onclick = function (event) { showRois(); };
+    document.getElementById("roiShowButton").classList.remove('danger');
+    document.getElementById("roiShowButton").classList.add('primary');
+    redraw();
 }
 
 function addTag() {
@@ -622,26 +696,30 @@ function addTag() {
 
 // Setup Viewport canvas
 function initViewport() {
-    window.viewportCanvas = document.getElementById('viewport');  
+    window.viewportCanvas = document.getElementById('viewport');
 
-    // Check that these things work ok: 
+    // Check that these things work ok:
     if(viewportCanvas && viewportCanvas.getContext) {
+        viewportCanvas.height  = document.getElementById('viewer').clientHeight;
+        viewportCanvas.width   = document.getElementById('viewer').clientWidth;
         window.viewportContext = viewportCanvas.getContext('2d');
 
         // Register Events
         viewportCanvas.addEventListener('mousedown', mouseDown);
         window.addEventListener('mousemove', mouseMove);
         window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('keypress', keyShortcut);
 
         // Setup the canvas with the right images
         refreshTiles();
         renderViewport(viewportContext);
-    } 
+    }
 }
 
 // Setup root
 
-function init(imageName) {  
+function init(imageName) {
+
     window.targetImage = new ViewedImage(imageName);
     // Grab info for the target image
     targetImage.getInfo();
