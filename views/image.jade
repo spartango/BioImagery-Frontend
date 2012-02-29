@@ -11,11 +11,12 @@ html
     body(onload='init('+imageId+')')
         #pghead.page-header
             #pgtitle.titlebar
-                h1 Image 
-                    small=imageId
+                a(href='/')
+                    h1 Image 
+                        small=imageId
         #app.container-fluid
             #viewer.content
-                | <canvas id="viewport" width=800 height=600> 
+                | <canvas class="darkbg" id="viewport" width=800 height=600>
                 | </canvas>
             #controls.sidebar
                 #description
@@ -36,21 +37,24 @@ html
                     hr
                 #tools
                     button(id='roiAddButton', onclick='penDown()').btn.primary New ROI
+                    br
+                    br
+                    button(id='roiShowButton', onclick='showRois()').btn.primary Show All
                 #nav.pagination.footer
                     ul
                         - if(imageId == 1)
                             li.prev.disabled
                                 a(href='#') &larr; Previous
-                        - else 
+                        - else
                             li.prev
                                 a(href='/image/'+(imageId-1)+'/view') &larr; Previous
-                        
+
                         li.active
                             a(href='/image/'+imageId+'/view')=imageId
 
                         - if(imageId >= imageCount)
                             li.next.disabled
                                 a(href='#') &rarr; Next
-                        - else 
+                        - else
                             li.next
-                                a(href='/image/'+(Number(imageId)+1) +'/view') &rarr; Next
+                                a(href='/image/'+(Number(imageId)+1) +'/view') Next &rarr;

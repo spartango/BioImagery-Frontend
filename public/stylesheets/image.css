@@ -11,3 +11,8 @@ div.footer {
 	bottom:0;
 	z-index:999999;
 }
+
+canvas.darkbg {
+	background-image:url('/images/dark_bg.png');
+	-webkit-box-shadow: 0 0 6px rgba(0, 105, 214, 1);
+}

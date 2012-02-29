@@ -3,15 +3,42 @@ var Sequelize = require('sequelize')
 var db = new Sequelize('bioimagery', 'imagingfrontend', '4ront3nd')
 
 // Models
-var Image = db.import(__dirname +'/../models/image');
-var Roi   = db.import(__dirname +'/../models/roi');
-var Tag   = db.import(__dirname +'/../models/tag');
+var Image         = db.import(__dirname +'/../models/image');
+var Roi           = db.import(__dirname +'/../models/roi');
+var Tag           = db.import(__dirname +'/../models/tag');
+var ImageSequence = db.import(__dirname +'/../models/imagesequence');
 
 // Relationships
 Image.hasMany(Roi);
-Roi.belongsTo(Image); 
+Image.belongsTo(ImageSequence);
+ImageSequence.hasMany(Image);
+Roi.belongsTo(Image);
 Roi.hasMany(Tag);
 Tag.hasMany(Roi);
+Roi.belongsTo(Tag);
+
+
+/*
+ * GET get roi info
+ */ 
+
+exports.roi = function(req, res) {
+
+    var roiId = req.params.id;
+
+    if(roiId) {
+        Roi.find(Number(roiId)).on('success', function(roi) {
+            if(roi) {
+                var json = JSON.stringify(Roi.dictify(target));
+                res.send(json, 200);
+            } else {
+                res.render('404', {title: '404 Bad Roi'});
+            }
+        });
+    } else {
+        res.send('Bad Param', 400);
+    }
+}
 
 /*
  * POST create a new roi 
